@@ -1,0 +1,6 @@
+@FordEnterRPG_HostAddress = http://localhost:5161
+
+GET {{FordEnterRPG_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
