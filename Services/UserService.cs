@@ -27,13 +27,20 @@ namespace FordEnterRPG.Services
             await _userRepository.AddAsync(user);
             return true;
         }
+        public async Task<Models.User?> ValidateUserAsync(UserSignInDto dto)
+        {
+            var user = await _userRepository.GetByEmailAsync(dto.Email);
+            if (user == null || user.PasswordHash != dto.Password)
+                return null;
+            return user;
+        }
         public async Task<string?> AuthenticateAsync(UserSignInDto dto)
         {
             var user = await _userRepository.GetByEmailAsync(dto.Email);
             if (user == null || user.PasswordHash != dto.Password)
                 return null;
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? "supersecretkey");
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? "d80fa6e9dd6104bb21f2b222607a169f43f4e8b553f2ce19e7474eee61ef48a8");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]

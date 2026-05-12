@@ -1,6 +1,7 @@
 using FordEnterRPG.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace FordEnterRPG.Controllers.Pages
@@ -17,13 +18,13 @@ namespace FordEnterRPG.Controllers.Pages
         [HttpGet("/Profile")]
         public async Task<IActionResult> Index()
         {
-            var email = User.Identity?.Name;
+            var email = User.FindFirstValue(ClaimTypes.Email);
             if (string.IsNullOrEmpty(email))
                 return Redirect("/SignIn");
             var profile = await _userService.GetProfileAsync(email);
             if (profile == null)
                 return Redirect("/SignIn");
-            return View("Profile", profile);
+            return View("~/Views/Profile.cshtml", profile);
         }
     }
 }

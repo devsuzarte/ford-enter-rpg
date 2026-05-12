@@ -13,9 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Configure EF Core (MySQL)
-// Connection string derived from: mysql://root:cimatec@127.0.0.1:3306/rpg
-var connectionString = "Server=127.0.0.1;Port=3306;Database=rpg;User=root;Password=cimatec;";
+// Configure EF Core (MySQL) usando ConnectionStrings do appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
@@ -46,10 +45,12 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
+        ValidateIssuer = true,
+        ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"] ?? "supersecretkey"))
     };
 });
@@ -79,5 +80,8 @@ app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=SignInPage}/{action=Index}/{id?}");
+
+// Seed admin user
+await FordEnterRPG.Utils.AdminSeeder.SeedAdminAsync(app.Services);
 
 app.Run();
