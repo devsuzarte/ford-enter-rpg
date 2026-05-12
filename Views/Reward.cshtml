@@ -1,0 +1,115 @@
+@{
+    ViewData["Title"] = "Recompensa";
+    var battle    = ViewBag.Battle    as FordEnterRPG.Models.Battle;
+    var character = ViewBag.Character as FordEnterRPG.Models.Character;
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — FordEnterRPG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+        body { background: #0d0d1a; color: #dcdcf0; font-family: 'Segoe UI', sans-serif; }
+
+        .page-title   { color: #ffd700; font-size: 1.6rem; font-weight: 700; }
+        .page-sub     { color: #9090b8; font-size: .92rem; }
+
+        .reward-card {
+            background: #14142a;
+            border: 2px solid #2c2c4a;
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+            height: 100%;
+        }
+        .reward-card:hover { border-color: #7c5cbf; background: #1a1a38; }
+        .reward-icon  { font-size: 2.8rem; line-height: 1; margin-bottom: .6rem; }
+        .reward-title { font-size: 1rem; font-weight: 700; color: #dcdcf0; margin-bottom: .3rem; }
+        .reward-desc  { font-size: .8rem; color: #7070a0; margin-bottom: .6rem; }
+        .reward-stat  { font-size: .9rem; font-weight: 600; }
+
+        /* botao transparente que envolve o card */
+        .reward-btn {
+            background: transparent;
+            border: none;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .reward-btn:focus .reward-card { border-color: #7c5cbf; }
+    </style>
+</head>
+<body>
+<div class="container py-5" style="max-width: 680px;">
+
+    <div class="text-center mb-5">
+        <div class="page-title mb-1">Vitoria!</div>
+        <div class="page-sub">
+            Voce derrotou <strong style="color:#dcdcf0;">@battle?.EnemyName</strong>!<br />
+            Agora e <strong style="color:#dcdcf0;">Nivel @character?.Level</strong>. Escolha sua recompensa:
+        </div>
+    </div>
+
+    <div class="row g-3">
+
+        <!-- +2 Vida -->
+        <div class="col-md-4">
+            <form method="post" action="/Battle/@battle?.Id/Reward" class="h-100">
+                <input type="hidden" name="choice" value="Life" />
+                <button type="submit" class="reward-btn h-100">
+                    <div class="reward-card">
+                        <div class="reward-icon">❤</div>
+                        <div class="reward-title">+2 Vida Maxima</div>
+                        <div class="reward-desc">Aumenta seu HP maximo de forma permanente.</div>
+                        <div class="reward-stat" style="color:#ff8888;">
+                            @character?.Life &rarr; @(character?.Life + 2)
+                        </div>
+                    </div>
+                </button>
+            </form>
+        </div>
+
+        <!-- +1 Dano -->
+        <div class="col-md-4">
+            <form method="post" action="/Battle/@battle?.Id/Reward" class="h-100">
+                <input type="hidden" name="choice" value="Damage" />
+                <button type="submit" class="reward-btn h-100">
+                    <div class="reward-card">
+                        <div class="reward-icon">⚔</div>
+                        <div class="reward-title">+1 Bonus de Dano</div>
+                        <div class="reward-desc">Aumenta o dano de todas as suas habilidades.</div>
+                        <div class="reward-stat" style="color:#ffaa44;">
+                            +@character?.Damage &rarr; +@(character?.Damage + 1)
+                        </div>
+                    </div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Habilidade aleatoria -->
+        <div class="col-md-4">
+            <form method="post" action="/Battle/@battle?.Id/Reward" class="h-100">
+                <input type="hidden" name="choice" value="Skill" />
+                <button type="submit" class="reward-btn h-100">
+                    <div class="reward-card">
+                        <div class="reward-icon">✦</div>
+                        <div class="reward-title">Habilidade Aleatoria</div>
+                        <div class="reward-desc">
+                            Recebe uma nova habilidade. Se tiver 4, a mais fraca sera substituida.
+                        </div>
+                        <div class="reward-stat" style="color:#56b4e9;">Surpresa!</div>
+                    </div>
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

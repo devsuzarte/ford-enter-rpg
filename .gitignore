@@ -27,6 +27,11 @@ bld/
 # VS Code
 .vscode/
 
+# AI assistants
+.claude/
+.copilot/
+.github/copilot/
+
 # ASP.NET
 appsettings.Development.json
 

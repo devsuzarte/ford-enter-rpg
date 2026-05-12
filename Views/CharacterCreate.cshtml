@@ -1,0 +1,150 @@
+@{
+    ViewData["Title"] = "Criar Personagem";
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — FordEnterRPG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+        body { background: #0d0d1a; color: #dcdcf0; font-family: 'Segoe UI', sans-serif; }
+        h1 { color: #c0a0ff; font-size: 1.6rem; }
+
+        .form-label { color: #b0b0cc; font-size: 0.9rem; }
+        .form-control {
+            background: #14142a; border: 1px solid #3a3a5a;
+            color: #e0e0e0; border-radius: 8px;
+        }
+        .form-control:focus {
+            background: #14142a; border-color: #7c5cbf;
+            color: #e0e0e0; box-shadow: 0 0 0 .2rem rgba(124,92,191,.25);
+        }
+        .form-control::placeholder { color: #505070; }
+
+        /* Cards de classe */
+        .class-card {
+            background: #14142a;
+            border: 2px solid #2c2c4a;
+            border-radius: 10px;
+            padding: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+            height: 100%;
+        }
+        .class-card:hover { border-color: #5c3c9f; background: #1a1a38; }
+        .class-card.selected { border-color: #c0a0ff; background: #1e1640; }
+        .class-card .class-icon { font-size: 2.4rem; margin-bottom: .5rem; }
+        .class-card h5 { color: #e0e0e0; margin-bottom: .2rem; font-size: 1rem; }
+        .class-card .class-internal { color: #606080; font-size: 0.75rem; margin-bottom: .6rem; }
+        .class-card .stat { font-size: 0.82rem; color: #a0a0c0; margin-bottom: .15rem; }
+        .class-card .stat strong { color: #dcdcf0; }
+        .class-card .adv { font-size: 0.78rem; color: #7adb8a; margin-top: .4rem; }
+        .class-card .desc { font-size: 0.78rem; color: #606080; margin-top: .5rem; }
+
+        /* Botao de confirmar */
+        .btn-criar {
+            background: #7c5cbf; border-color: #7c5cbf;
+            color: #fff; font-size: 1rem;
+            padding: .65rem; border-radius: 8px;
+            width: 100%;
+        }
+        .btn-criar:hover { background: #5c3c9f; border-color: #5c3c9f; color: #fff; }
+
+        .error-msg {
+            background: #3a1a1a; border: 1px solid #7a3a3a;
+            border-radius: 8px; padding: .6rem .9rem;
+            color: #ff9a9a; font-size: 0.88rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-5" style="max-width: 720px;">
+
+    <h1 class="mb-4">Criar Personagem</h1>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="error-msg mb-3">@ViewBag.Error</div>
+    }
+
+    <form method="post" action="/Character/Create">
+
+        <!-- Nome -->
+        <div class="mb-4">
+            <label class="form-label" for="name">Nome do Personagem</label>
+            <input id="name" type="text" name="Name" class="form-control"
+                   placeholder="Ex: Arathorn, Lyra, Zephyr..." maxlength="50" required />
+        </div>
+
+        <!-- Classe -->
+        <div class="mb-4">
+            <div class="form-label mb-2">Escolha sua Classe</div>
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <label class="w-100 h-100">
+                        <input type="radio" name="Class" value="Warrior" class="d-none class-radio" required />
+                        <div class="class-card">
+                            <div class="class-icon">🗡</div>
+                            <h5>Guerreiro</h5>
+                            <div class="class-internal">Warrior</div>
+                            <div class="stat">Vida: <strong>25</strong></div>
+                            <div class="stat">Bonus Dano: <strong>+7</strong></div>
+                            <div class="adv">Vantagem vs Mago</div>
+                            <div class="desc">Tanque resistente com ataques fisicos devastadores.</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="w-100 h-100">
+                        <input type="radio" name="Class" value="Mage" class="d-none class-radio" />
+                        <div class="class-card">
+                            <div class="class-icon">🔮</div>
+                            <h5>Mago</h5>
+                            <div class="class-internal">Mage</div>
+                            <div class="stat">Vida: <strong>18</strong></div>
+                            <div class="stat">Bonus Dano: <strong>+10</strong></div>
+                            <div class="adv">Vantagem vs Arqueiro</div>
+                            <div class="desc">Magico de alto dano. Fragil, porem letal.</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="w-100 h-100">
+                        <input type="radio" name="Class" value="Archer" class="d-none class-radio" />
+                        <div class="class-card">
+                            <div class="class-icon">🏹</div>
+                            <h5>Arqueiro</h5>
+                            <div class="class-internal">Archer</div>
+                            <div class="stat">Vida: <strong>20</strong></div>
+                            <div class="stat">Bonus Dano: <strong>+8</strong></div>
+                            <div class="adv">Vantagem vs Guerreiro</div>
+                            <div class="desc">Equilibrado, rapido e preciso. Bom ponto de partida.</div>
+                        </div>
+                    </label>
+                </div>
+
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-criar">Entrar na Arena</button>
+
+    </form>
+
+</div>
+
+<script>
+    document.querySelectorAll('.class-radio').forEach(r => {
+        r.addEventListener('change', () => {
+            document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
+            if (r.checked) r.closest('label').querySelector('.class-card').classList.add('selected');
+        });
+    });
+</script>
+</body>
+</html>

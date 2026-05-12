@@ -58,6 +58,8 @@ builder.Services.AddAuthentication(options =>
 // Add repositories and services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICharacterService, CharacterService>();
+builder.Services.AddScoped<IBattleService, BattleService>();
 
 var app = builder.Build();
 
