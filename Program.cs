@@ -10,27 +10,20 @@ using FordEnterRPG.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 
-// Configure EF Core (MySQL) usando ConnectionStrings do appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-// Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.EnableAnnotations();
 });
 
-// Add Razor Pages and Views
 builder.Services.AddControllersWithViews();
 
-// JWT Authentication
-
-// Add Cookie Authentication for MVC and JWT for APIs
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = "Cookies";
@@ -55,7 +48,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Add repositories and services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
@@ -63,13 +55,9 @@ builder.Services.AddScoped<IBattleService, BattleService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // Serve OpenAPI documents at /openapi/{documentName}.json for Scalar
     app.MapSwagger("/openapi/{documentName}.json");
-
-    // Serve Scalar UI (default at /scalar)
     app.MapScalarApiReference();
 }
 
@@ -83,7 +71,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=SignInPage}/{action=Index}/{id?}");
 
-// Seed admin user
 await FordEnterRPG.Utils.AdminSeeder.SeedAdminAsync(app.Services);
 
 app.Run();

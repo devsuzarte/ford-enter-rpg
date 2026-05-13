@@ -6,7 +6,6 @@ namespace FordEnterRPG.Models
         public int CharacterId { get; set; }
         public Character Character { get; set; } = null!;
 
-        // Enemy snapshot (generated at battle start)
         public string EnemyName { get; set; } = string.Empty;
         public string EnemyClass { get; set; } = string.Empty;
         public int EnemyMaxLife { get; set; }
@@ -15,11 +14,10 @@ namespace FordEnterRPG.Models
         public int EnemyLevel { get; set; }
         public bool EnemyStunned { get; set; } = false;
 
-        // Player HP tracked here (resets each battle)
         public int PlayerCurrentLife { get; set; }
         public bool PlayerStunned { get; set; } = false;
 
-        public string Status { get; set; } = "Active"; // Active, Won, Lost
+        public string Status { get; set; } = "Active";
         public bool RewardClaimed { get; set; } = false;
         public int TurnCount { get; set; } = 0;
         public int RunSequence { get; set; } = 0;

@@ -33,7 +33,6 @@ namespace FordEnterRPG.Services
             _db.Characters.Add(character);
             await _db.SaveChangesAsync();
 
-            // 3 common skills from class + 1 random of any rarity
             var rng = new Random();
             var common = await _db.Skills
                 .Where(s => s.ClassName == dto.Class && s.Rarity == "Common")

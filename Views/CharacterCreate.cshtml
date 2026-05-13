@@ -25,7 +25,6 @@
         }
         .form-control::placeholder { color: #505070; }
 
-        /* Cards de classe */
         .class-card {
             background: #14142a;
             border: 2px solid #2c2c4a;
@@ -46,7 +45,6 @@
         .class-card .adv { font-size: 0.78rem; color: #7adb8a; margin-top: .4rem; }
         .class-card .desc { font-size: 0.78rem; color: #606080; margin-top: .5rem; }
 
-        /* Botao de confirmar */
         .btn-criar {
             background: #7c5cbf; border-color: #7c5cbf;
             color: #fff; font-size: 1rem;
@@ -74,14 +72,12 @@
 
     <form method="post" action="/Character/Create">
 
-        <!-- Nome -->
         <div class="mb-4">
             <label class="form-label" for="name">Nome do Personagem</label>
             <input id="name" type="text" name="Name" class="form-control"
                    placeholder="Ex: Arathorn, Lyra, Zephyr..." maxlength="50" required />
         </div>
 
-        <!-- Classe -->
         <div class="mb-4">
             <div class="form-label mb-2">Escolha sua Classe</div>
             <div class="row g-3">

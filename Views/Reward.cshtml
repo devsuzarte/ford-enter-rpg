@@ -34,7 +34,6 @@
         .reward-desc  { font-size: .8rem; color: #7070a0; margin-bottom: .6rem; }
         .reward-stat  { font-size: .9rem; font-weight: 600; }
 
-        /* botao transparente que envolve o card */
         .reward-btn {
             background: transparent;
             border: none;
@@ -59,7 +58,6 @@
 
     <div class="row g-3">
 
-        <!-- +2 Vida -->
         <div class="col-md-4">
             <form method="post" action="/Battle/@battle?.Id/Reward" class="h-100">
                 <input type="hidden" name="choice" value="Life" />
@@ -76,7 +74,6 @@
             </form>
         </div>
 
-        <!-- +1 Dano -->
         <div class="col-md-4">
             <form method="post" action="/Battle/@battle?.Id/Reward" class="h-100">
                 <input type="hidden" name="choice" value="Damage" />
@@ -93,7 +90,6 @@
             </form>
         </div>
 
-        <!-- Habilidade aleatoria -->
         <div class="col-md-4">
             <form method="post" action="/Battle/@battle?.Id/Reward" class="h-100">
                 <input type="hidden" name="choice" value="Skill" />

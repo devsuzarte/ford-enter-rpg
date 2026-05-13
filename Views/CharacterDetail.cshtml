@@ -41,7 +41,6 @@
 
         .panel { background: #14142a; border: 1px solid #2c2c4a; border-radius: 10px; padding: 1rem 1.2rem; }
 
-        /* Stats */
         .stat-box {
             background: #0d0d1e;
             border: 1px solid #2a2a42;
@@ -52,7 +51,6 @@
         .stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1; }
         .stat-label { font-size: 0.72rem; color: #6060a0; margin-top: .25rem; }
 
-        /* Badge de classe */
         .class-badge {
             display: inline-block;
             background: #1e1640;
@@ -64,7 +62,6 @@
             font-weight: 600;
         }
 
-        /* Cards de habilidade */
         .skill-card {
             background: #0d0d1e;
             border: 1px solid #2a2a42;
@@ -77,7 +74,6 @@
         .skill-stats { font-size: .78rem; color: #9090b8; margin-top: .4rem; }
         .skill-stats strong { color: #e0e0e0; }
 
-        /* Botoes */
         .btn-play {
             background: #8b0000; border-color: #8b0000;
             color: #fff; font-size: 1rem; font-weight: 600;
@@ -96,15 +92,23 @@
         }
         .btn-back:hover { color: #c0a0ff; border-color: #5c3c9f; }
 
-        /* Record */
         .record-win  { color: #66dd88; font-weight: 700; font-size: 1.4rem; }
         .record-lose { color: #dd6666; font-weight: 700; font-size: 1.4rem; }
+
+        .dead-banner {
+            background: #1a0808;
+            border: 1px solid #7a1a1a;
+            border-radius: 10px;
+            padding: 1.2rem 1.4rem;
+            text-align: center;
+        }
+        .dead-banner .dead-title { color: #dd4444; font-size: 1.2rem; font-weight: 700; margin-bottom: .4rem; }
+        .dead-banner .dead-sub   { color: #806060; font-size: .86rem; }
     </style>
 </head>
 <body>
 <div style="width:100%;max-width:680px;margin:0 auto;">
 
-    <!-- Cabecalho -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1>@ClassIcon(Model.Class) @Model.Name</h1>
@@ -116,7 +120,6 @@
         <a href="/Profile" class="btn-back">Perfil</a>
     </div>
 
-    <!-- Stats -->
     <div class="row g-2 mb-4">
         <div class="col-4 col-sm">
             <div class="stat-box">
@@ -150,7 +153,6 @@
         </div>
     </div>
 
-    <!-- Habilidades -->
     <div class="mb-4">
         <h2>Habilidades</h2>
         @if (!Model.CharacterSkills.Any())
@@ -182,8 +184,20 @@
         }
     </div>
 
-    <!-- Acao -->
-    @if (activeBattle != null)
+    @if (Model.IsDead)
+    {
+        <div class="dead-banner">
+            <div class="dead-title">&#x2620; Personagem Morto</div>
+            <div class="dead-sub">Este personagem foi derrotado em batalha e nao pode mais lutar.</div>
+            <form method="post" action="/Character/Reset" class="mt-3">
+                <button type="submit" class="btn btn-sm"
+                        style="background:#3a1a1a;border:1px solid #7a3a3a;color:#dd6666;border-radius:6px;padding:.35rem .9rem;">
+                    Recomecar com novo personagem
+                </button>
+            </form>
+        </div>
+    }
+    else if (activeBattle != null)
     {
         <a href="/Battle/@activeBattle.Id" class="btn btn-continue text-decoration-none d-block text-center">
             Continuar Batalha

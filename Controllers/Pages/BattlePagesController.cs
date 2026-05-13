@@ -26,7 +26,8 @@ namespace FordEnterRPG.Controllers.Pages
             var character = await _characterService.GetByUserIdAsync(userId);
             if (character == null) return Redirect("/Character/Create");
 
-            // Reuse an active battle if it exists
+            if (character.IsDead) return Redirect("/Character");
+
             var active = await _battleService.GetActiveBattleAsync(character.Id);
             if (active != null) return Redirect($"/Battle/{active.Id}");
 
@@ -47,6 +48,9 @@ namespace FordEnterRPG.Controllers.Pages
             if (battle == null || battle.CharacterId != character.Id)
                 return Redirect("/Character");
 
+            if (character.IsDead && battle.Status == "Active")
+                return Redirect("/Character");
+
             var full = await _characterService.GetByIdWithSkillsAsync(character.Id);
             ViewBag.Character = full;
             ViewBag.Battle = battle;
@@ -65,7 +69,7 @@ namespace FordEnterRPG.Controllers.Pages
             if (character == null) return Redirect("/Character");
 
             var battle = await _battleService.GetBattleWithLogsAsync(id);
-            if (battle == null || battle.CharacterId != character.Id || battle.Status != "Active")
+            if (battle == null || battle.CharacterId != character.Id || battle.Status != "Active" || character.IsDead)
                 return Redirect("/Character");
 
             var skill = character.CharacterSkills.FirstOrDefault(cs => cs.SkillId == skillId)?.Skill;

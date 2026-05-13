@@ -6,8 +6,6 @@ namespace FordEnterRPG.Services
 {
     public class BattleService : IBattleService
     {
-        // ── Tabelas estáticas ─────────────────────────────────────────────
-
         private static readonly Dictionary<string, (int life, int damage)> EnemyBaseStats = new()
         {
             { "Warrior", (22, 6) },
@@ -15,7 +13,6 @@ namespace FordEnterRPG.Services
             { "Archer",  (18, 7) }
         };
 
-        // Movimentos do inimigo: (nome, dano-base-proprio)
         private static readonly Dictionary<string, (string name, int dmg)[]> EnemyMoves = new()
         {
             { "Warrior", [("Golpe de Espada", 5), ("Ataque Brutal", 8), ("Investida", 6)] },
@@ -35,8 +32,6 @@ namespace FordEnterRPG.Services
 
         private readonly AppDbContext _db;
         public BattleService(AppDbContext db) => _db = db;
-
-        // ── Iniciar Batalha ───────────────────────────────────────────────
 
         public async Task<Battle> StartBattleAsync(Character player)
         {
@@ -68,8 +63,6 @@ namespace FordEnterRPG.Services
             return battle;
         }
 
-        // ── Consultas ─────────────────────────────────────────────────────
-
         public async Task<Battle?> GetBattleWithLogsAsync(int battleId) =>
             await _db.Battles
                 .Include(b => b.Logs.OrderBy(l => l.Turn))
@@ -79,18 +72,6 @@ namespace FordEnterRPG.Services
             await _db.Battles
                 .FirstOrDefaultAsync(b => b.CharacterId == characterId && b.Status == "Active");
 
-        // ── Executar Turno ────────────────────────────────────────────────
-        //
-        // Ordem:
-        //   1. Jogador age (ou pula se atordoado)
-        //   2. Verifica se inimigo morreu → VITÓRIA
-        //   3. Inimigo age (ou pula se atordoado)
-        //   4. Verifica se jogador morreu → DERROTA
-        //
-        // Atordoamento: sempre afeta o PRÓXIMO turno de quem foi atingido,
-        // porque o atordoamento é aplicado no final da fase de quem stun,
-        // e consumido/zerado no início da fase da vítima no turno seguinte.
-
         public async Task ExecuteTurnAsync(Battle battle, Character player, Skill skill)
         {
             var rng  = new Random();
@@ -99,7 +80,6 @@ namespace FordEnterRPG.Services
 
             log.Add($"=== Turno {battle.TurnCount} ===");
 
-            // ── 1. Fase do Jogador ────────────────────────────────────────
             if (battle.PlayerStunned)
             {
                 log.Add($"[ATORDOADO] {player.Name} não consegue agir neste turno.");
@@ -115,7 +95,6 @@ namespace FordEnterRPG.Services
 
                 battle.EnemyCurrentLife = Math.Max(0, battle.EnemyCurrentLife - dmg);
 
-                // Efeitos do jogador
                 if (skill.EffectType == "Heal")
                 {
                     int healed = Math.Min(skill.EffectValue, player.Life - battle.PlayerCurrentLife);
@@ -135,7 +114,6 @@ namespace FordEnterRPG.Services
                 log.Add($"  Inimigo: {battle.EnemyCurrentLife}/{battle.EnemyMaxLife} HP");
             }
 
-            // ── 2. Checar morte do inimigo ────────────────────────────────
             if (battle.EnemyCurrentLife <= 0)
             {
                 battle.Status = "Won";
@@ -147,7 +125,6 @@ namespace FordEnterRPG.Services
             }
             else
             {
-                // ── 3. Fase do Inimigo ────────────────────────────────────
                 if (battle.EnemyStunned)
                 {
                     log.Add($"[ATORDOADO] {battle.EnemyName} nao consegue agir neste turno.");
@@ -172,11 +149,11 @@ namespace FordEnterRPG.Services
                     log.Add($"  {player.Name}: {battle.PlayerCurrentLife}/{player.Life} HP");
                 }
 
-                // ── 4. Checar morte do jogador ────────────────────────────
                 if (battle.PlayerCurrentLife <= 0)
                 {
                     battle.Status = "Lost";
                     player.Losses++;
+                    player.IsDead = true;
                     log.Add($"");
                     log.Add($"DERROTA. {player.Name} foi derrotado por {battle.EnemyName}.");
                 }
@@ -195,8 +172,6 @@ namespace FordEnterRPG.Services
             _db.Characters.Update(player);
             await _db.SaveChangesAsync();
         }
-
-        // ── Recompensa ────────────────────────────────────────────────────
 
         public async Task<(Skill? replaced, Skill? acquired)> ClaimRewardAsync(Battle battle, Character player, string choice)
         {
@@ -219,7 +194,6 @@ namespace FordEnterRPG.Services
                         .Select(cs => cs.SkillId)
                         .ToListAsync();
 
-                    // The class whose skills COUNTER the player (Archer > Warrior, Warrior > Mage, Mage > Archer)
                     string counterClass = player.Class switch
                     {
                         "Warrior" => "Archer",
@@ -228,14 +202,12 @@ namespace FordEnterRPG.Services
                         _         => ""
                     };
 
-                    // How many counter-class skills does the player already have? (max 2)
                     int crossCount = await _db.CharacterSkills
                         .Include(cs => cs.Skill)
                         .Where(cs => cs.CharacterId == player.Id
                                   && cs.Skill.ClassName == counterClass)
                         .CountAsync();
 
-                    // Pool: own class + Any; add counter-class only while under the 2-skill limit
                     var candidates = await _db.Skills
                         .Where(s => !ownedIds.Contains(s.Id)
                                  && (s.ClassName == player.Class
@@ -244,8 +216,6 @@ namespace FordEnterRPG.Services
                         .Select(s => new { s.Id, s.Rarity })
                         .ToListAsync();
 
-                    // Weighted random in C# — Epic ×4, Rare ×2, Common ×1
-                    // (OrderBy(Guid) on MySQL can repeat; true randomness needs client-side pick)
                     Skill? newSkill = null;
                     if (candidates.Count > 0)
                     {
@@ -273,8 +243,6 @@ namespace FordEnterRPG.Services
 
                         if (slots.Count >= 4)
                         {
-                            // PK is (CharacterId, SkillId) — can't UPDATE a PK in EF Core.
-                            // Remove old row first, then insert new one in the same slot.
                             var weakest  = slots.First();
                             replaced     = weakest.Skill;
                             int keptSlot = weakest.Slot;
@@ -307,8 +275,6 @@ namespace FordEnterRPG.Services
 
             return (replaced, acquired);
         }
-
-        // ── Helpers ───────────────────────────────────────────────────────
 
         private static float AdvantageMultiplier(string atk, string def)
         {

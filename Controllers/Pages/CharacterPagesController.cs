@@ -29,7 +29,6 @@ namespace FordEnterRPG.Controllers.Pages
 
             var full = await _characterService.GetByIdWithSkillsAsync(character.Id);
 
-            // Check for unfinished/won battles
             var activeBattle = await _battleService.GetActiveBattleAsync(character.Id);
             ViewBag.ActiveBattle = activeBattle;
 
@@ -42,7 +41,6 @@ namespace FordEnterRPG.Controllers.Pages
             var userId = GetUserId();
             if (userId == 0) return Redirect("/SignIn");
 
-            // Prevent creating a second character
             var existing = await _characterService.GetByUserIdAsync(userId);
             if (existing != null) return Redirect("/Character");
 

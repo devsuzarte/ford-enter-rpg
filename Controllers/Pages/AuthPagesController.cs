@@ -71,6 +71,9 @@ namespace FordEnterRPG.Controllers.Pages
         [HttpPost("/SignUp")]
         public async Task<IActionResult> SignUp([FromForm] DTOs.UserSignUpDto dto)
         {
+            if (!ModelState.IsValid)
+                return View("~/Views/SignUp.cshtml");
+
             var result = await _userService.RegisterAsync(dto);
             if (!result)
             {

@@ -32,7 +32,6 @@
         _      => "—"
     };
 
-    // ── Structured log parser ─────────────────────────────────────────────
     List<TurnEvent> ParseEntry(string desc, string playerName)
     {
         var list = new List<TurnEvent>();
@@ -133,7 +132,6 @@
 
         .panel { background: #14142a; border: 1px solid #2c2c4a; border-radius: 10px; padding: 1rem 1.2rem; }
 
-        /* HP bars */
         .combatant-name { font-size: 1.05rem; font-weight: 700; color: #dcdcf0; }
         .combatant-sub  { font-size: 0.80rem; color: #8888a8; }
         .hp-bar  { height: 14px; border-radius: 6px; background: #1e1e3a; overflow: hidden; }
@@ -142,7 +140,6 @@
         .stun-badge { font-size:0.72rem; color:#ffdd55; background:#2a2a00; border:1px solid #5a5a00;
                       border-radius:4px; padding:1px 6px; display:inline-block; margin-top:3px; }
 
-        /* ── Carousel ── */
         .carousel-wrap { background:#14142a; border:1px solid #2c2c4a; border-radius:10px; overflow:hidden; margin-bottom:1rem; }
 
         .carousel-nav {
@@ -161,7 +158,6 @@
         .turn-slide { display: none; }
         .turn-body  { padding: 0.7rem 0.8rem; display: flex; flex-direction: column; gap: 0.45rem; min-height: 90px; }
 
-        /* Event rows */
         .ev-row {
             background: #0a0a18; border-radius: 8px;
             padding: 0.55rem 0.75rem; border-left: 3px solid transparent;
@@ -173,7 +169,6 @@
         .ev-row.is-lose   { border-left-color: #cc2222; background: #100404; }
         .ev-row.is-level  { border-left-color: #5555cc; background: #040418; }
 
-        /* Attack row internals */
         .ev-actor       { font-size: 0.74rem; font-weight: 600; margin-bottom: 0.18rem; }
         .ev-actor.player{ color: #c0a0ff; }
         .ev-actor.enemy { color: #ff8888; }
@@ -181,7 +176,6 @@
         .ev-damage      { font-size: 1.05rem; font-weight: 700; color: #ffaa44; }
         .ev-unit        { font-size: 0.72rem; color: #8888a8; margin-left: 2px; }
 
-        /* Badges */
         .btag { font-size: 0.66rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;
                 display: inline-block; margin-left: 4px; vertical-align: middle; }
         .badge-crit { background: #3a1800; color: #ffaa44; border: 1px solid #5a3000; }
@@ -196,7 +190,6 @@
         .ev-msg-lose  { font-size: 0.86rem; color: #cc4444; font-weight: 600; }
         .ev-msg-level { font-size: 0.80rem; color: #8888cc; }
 
-        /* Skills */
         .skill-btn {
             display: block; width: 100%; background: #14142a;
             border: 1px solid #2c2c4a; border-radius: 8px;
@@ -210,7 +203,6 @@
         .skills-label { font-size: 0.76rem; color: #6060a0; text-transform: uppercase;
                         letter-spacing: .08em; margin-bottom: 8px; }
 
-        /* Banners */
         .banner-win  { background:#0f2d1a; border:1px solid #2a6a3a; border-radius:10px; padding:1.2rem; text-align:center; }
         .banner-lose { background:#2d0f0f; border:1px solid #6a2a2a; border-radius:10px; padding:1.2rem; text-align:center; }
         .btn-continue-win {
@@ -230,7 +222,6 @@
 <body>
 <div style="width:100%;max-width:680px;margin:0 auto;">
 
-    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <span style="font-size:1.1rem;font-weight:700;color:#c0a0ff;">Batalha #@battle.RunSequence</span>
@@ -239,7 +230,6 @@
         <a href="/Character" class="btn-secondary-dark">Personagem</a>
     </div>
 
-    <!-- Enemy -->
     <div class="panel mb-3">
         <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
@@ -252,7 +242,6 @@
         <div class="hp-bar"><div class="hp-fill @BarColor(enemyPct)" style="width:@enemyPct%"></div></div>
     </div>
 
-    <!-- Battle log carousel -->
     @if (battle.Logs.Any())
     {
         var sortedLogs = battle.Logs.OrderBy(l => l.Turn).ToList();
@@ -339,7 +328,6 @@
         </div>
     }
 
-    <!-- Player -->
     <div class="panel mb-3">
         <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
@@ -352,7 +340,6 @@
         <div class="hp-bar"><div class="hp-fill @BarColor(playerPct)" style="width:@playerPct%"></div></div>
     </div>
 
-    <!-- End states -->
     @if (battle.Status == "Lost")
     {
         <div class="banner-lose">
@@ -405,7 +392,6 @@
 
 </div>
 
-<!-- Loading overlay -->
 <div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,5,20,.8);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
     <div style="width:42px;height:42px;border:4px solid #2c2c4a;border-top-color:#7c5cbf;border-radius:50%;animation:_sp .65s linear infinite;"></div>
     <div style="color:#9090b8;margin-top:12px;font-size:.82rem;">Carregando...</div>
@@ -413,7 +399,6 @@
 <style>@@keyframes _sp{to{transform:rotate(360deg)}}</style>
 
 <script>
-// Carousel
 (function () {
     var slides = document.querySelectorAll('.turn-slide');
     var total  = slides.length;
@@ -444,7 +429,6 @@
     show(cur);
 })();
 
-// Loading overlay (skip carousel buttons)
 (function () {
     var o = document.getElementById('loader');
     function s() { o.style.display = 'flex'; }
