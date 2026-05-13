@@ -111,5 +111,15 @@
     </div>
 
 </div>
+<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,5,20,.8);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:42px;height:42px;border:4px solid #2c2c4a;border-top-color:#7c5cbf;border-radius:50%;animation:_sp .65s linear infinite;"></div>
+    <div style="color:#9090b8;margin-top:12px;font-size:.82rem;">Carregando...</div>
+</div>
+<style>@@keyframes _sp{to{transform:rotate(360deg)}}</style>
+<script>
+(function(){var o=document.getElementById('loader');function s(){o.style.display='flex';}
+document.addEventListener('submit',s);
+document.addEventListener('click',function(e){var a=e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(!h||h[0]==='#'||/^(https?:|mailto:)/.test(h))return;s();});})();
+</script>
 </body>
 </html>

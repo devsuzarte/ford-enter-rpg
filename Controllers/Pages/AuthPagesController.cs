@@ -43,6 +43,17 @@ namespace FordEnterRPG.Controllers.Pages
         }
     }
 
+    public class SignOutPageController : Controller
+    {
+        [HttpPost("/SignOut")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("Cookies");
+            Response.Cookies.Delete("access_token");
+            return Redirect("/SignIn");
+        }
+    }
+
     public class SignUpPageController : Controller
     {
         private readonly Services.IUserService _userService;
