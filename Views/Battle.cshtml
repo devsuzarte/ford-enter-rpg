@@ -205,9 +205,13 @@
     {
         <div class="banner-lose">
             <div style="font-size:1.3rem; color:#ff6666; font-weight:700; margin-bottom:6px;">Derrota</div>
-            <div style="color:#cc8888; margin-bottom:12px;">@battle.EnemyName foi mais forte desta vez.</div>
-            <a href="/Battle/Start" class="btn btn-danger btn-sm me-2">Nova Batalha</a>
-            <a href="/Character" class="btn btn-outline-secondary btn-sm">Ver Personagem</a>
+            <div style="color:#cc8888; margin-bottom:12px;">
+                @battle.EnemyName foi mais forte desta vez.<br />
+                <span style="font-size:0.82rem;">Sua run terminou. Reinicie para escolher uma nova classe.</span>
+            </div>
+            <form method="post" action="/Character/Reset" class="d-inline">
+                <button type="submit" class="btn btn-danger btn-sm me-2">Nova Run</button>
+            </form>
         </div>
     }
     else if (battle.Status == "Won")

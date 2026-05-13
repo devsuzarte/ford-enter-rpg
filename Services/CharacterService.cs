@@ -59,5 +59,15 @@ namespace FordEnterRPG.Services
             await _db.Characters
                 .Include(c => c.CharacterSkills).ThenInclude(cs => cs.Skill)
                 .FirstOrDefaultAsync(c => c.Id == characterId);
+
+        public async Task ResetAsync(int userId)
+        {
+            var character = await _db.Characters.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (character != null)
+            {
+                _db.Characters.Remove(character);
+                await _db.SaveChangesAsync();
+            }
+        }
     }
 }

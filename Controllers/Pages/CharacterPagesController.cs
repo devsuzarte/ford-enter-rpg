@@ -65,6 +65,15 @@ namespace FordEnterRPG.Controllers.Pages
             return Redirect("/Character");
         }
 
+        [HttpPost("/Character/Reset")]
+        public async Task<IActionResult> Reset()
+        {
+            var userId = GetUserId();
+            if (userId == 0) return Redirect("/SignIn");
+            await _characterService.ResetAsync(userId);
+            return Redirect("/Character/Create");
+        }
+
         private int GetUserId()
         {
             var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);

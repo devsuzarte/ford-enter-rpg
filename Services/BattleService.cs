@@ -227,11 +227,20 @@ namespace FordEnterRPG.Services
                             .OrderBy(cs => cs.Skill.BaseDamage)
                             .ToListAsync();
 
-                        if (slots.Count >= 4)
+                            if (slots.Count >= 4)
                         {
-                            var weakest    = slots.First();
-                            weakest.SkillId = newSkill.Id;
-                            _db.CharacterSkills.Update(weakest);
+                            // PK is (CharacterId, SkillId) — can't UPDATE a PK in EF Core.
+                            // Remove old row first, then insert new one in the same slot.
+                            var weakest  = slots.First();
+                            int keptSlot = weakest.Slot;
+                            _db.CharacterSkills.Remove(weakest);
+                            await _db.SaveChangesAsync();
+                            _db.CharacterSkills.Add(new CharacterSkill
+                            {
+                                CharacterId = player.Id,
+                                SkillId     = newSkill.Id,
+                                Slot        = keptSlot
+                            });
                         }
                         else
                         {
