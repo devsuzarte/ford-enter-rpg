@@ -219,9 +219,21 @@ namespace FordEnterRPG.Services
                         .Select(cs => cs.SkillId)
                         .ToListAsync();
 
-                    var newSkill = await _db.Skills
-                        .Where(s => (s.ClassName == player.Class || s.ClassName == "Any")
-                                    && !ownedIds.Contains(s.Id))
+                    // Count cross-class skills already owned (max 2 allowed)
+                    int crossClassCount = await _db.CharacterSkills
+                        .Include(cs => cs.Skill)
+                        .Where(cs => cs.CharacterId == player.Id
+                                  && cs.Skill.ClassName != player.Class
+                                  && cs.Skill.ClassName != "Any")
+                        .CountAsync();
+
+                    var skillPool = _db.Skills.Where(s => !ownedIds.Contains(s.Id));
+
+                    // If already at the 2 cross-class limit, restrict to own class + Any
+                    if (crossClassCount >= 2)
+                        skillPool = skillPool.Where(s => s.ClassName == player.Class || s.ClassName == "Any");
+
+                    var newSkill = await skillPool
                         .OrderBy(_ => Guid.NewGuid())
                         .FirstOrDefaultAsync();
 
