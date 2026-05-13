@@ -219,23 +219,48 @@ namespace FordEnterRPG.Services
                         .Select(cs => cs.SkillId)
                         .ToListAsync();
 
-                    // Count cross-class skills already owned (max 2 allowed)
-                    int crossClassCount = await _db.CharacterSkills
+                    // The class whose skills COUNTER the player (Archer > Warrior, Warrior > Mage, Mage > Archer)
+                    string counterClass = player.Class switch
+                    {
+                        "Warrior" => "Archer",
+                        "Mage"    => "Warrior",
+                        "Archer"  => "Mage",
+                        _         => ""
+                    };
+
+                    // How many counter-class skills does the player already have? (max 2)
+                    int crossCount = await _db.CharacterSkills
                         .Include(cs => cs.Skill)
                         .Where(cs => cs.CharacterId == player.Id
-                                  && cs.Skill.ClassName != player.Class
-                                  && cs.Skill.ClassName != "Any")
+                                  && cs.Skill.ClassName == counterClass)
                         .CountAsync();
 
-                    var skillPool = _db.Skills.Where(s => !ownedIds.Contains(s.Id));
+                    // Pool: own class + Any; add counter-class only while under the 2-skill limit
+                    var candidates = await _db.Skills
+                        .Where(s => !ownedIds.Contains(s.Id)
+                                 && (s.ClassName == player.Class
+                                  || s.ClassName == "Any"
+                                  || (s.ClassName == counterClass && crossCount < 2)))
+                        .Select(s => new { s.Id, s.Rarity })
+                        .ToListAsync();
 
-                    // If already at the 2 cross-class limit, restrict to own class + Any
-                    if (crossClassCount >= 2)
-                        skillPool = skillPool.Where(s => s.ClassName == player.Class || s.ClassName == "Any");
+                    // Weighted random in C# — Epic ×4, Rare ×2, Common ×1
+                    // (OrderBy(Guid) on MySQL can repeat; true randomness needs client-side pick)
+                    Skill? newSkill = null;
+                    if (candidates.Count > 0)
+                    {
+                        var weighted = candidates
+                            .SelectMany(c => Enumerable.Repeat(c.Id, c.Rarity switch
+                            {
+                                "Epic" => 4,
+                                "Rare" => 2,
+                                _      => 1
+                            }))
+                            .ToList();
 
-                    var newSkill = await skillPool
-                        .OrderBy(_ => Guid.NewGuid())
-                        .FirstOrDefaultAsync();
+                        int pickedId = weighted[Random.Shared.Next(weighted.Count)];
+                        newSkill = await _db.Skills.FindAsync(pickedId);
+                    }
 
                     if (newSkill != null)
                     {
