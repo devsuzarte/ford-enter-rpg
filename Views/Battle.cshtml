@@ -1,15 +1,17 @@
+@using System.Text.RegularExpressions
+@using FordEnterRPG.ViewModels
 @{
     ViewData["Title"] = "Batalha";
     var character = ViewBag.Character as FordEnterRPG.Models.Character;
     var battle    = ViewBag.Battle    as FordEnterRPG.Models.Battle;
     if (character == null || battle == null) { return; }
 
-    string ClassIcon(string c) => c switch
+    string ClassLabel(string c) => c switch
         { "Warrior" => "Guerreiro", "Mage" => "Mago", "Archer" => "Arqueiro", _ => c };
 
     int playerPct = battle.PlayerCurrentLife <= 0 ? 0
         : (int)(battle.PlayerCurrentLife * 100.0 / Math.Max(1, character.Life));
-    int enemyPct  = battle.EnemyCurrentLife <= 0  ? 0
+    int enemyPct = battle.EnemyCurrentLife <= 0 ? 0
         : (int)(battle.EnemyCurrentLife  * 100.0 / Math.Max(1, battle.EnemyMaxLife));
 
     string BarColor(int pct) => pct > 50 ? "bg-success" : pct > 25 ? "bg-warning" : "bg-danger";
@@ -20,22 +22,98 @@
         { "Epic" => "#ffd700", "Rare" => "#56b4e9", _ => "#aaaaaa" };
     string EffectLabel(string e, int v) => e switch
     {
-        "Crit"  => "50% Critico",
-        "Stun"  => "30% Atordoar",
-        "Heal"  => $"+{v} HP",
-        _       => "—"
+        "Crit" => "50% Critico",
+        "Stun" => "30% Atordoar",
+        "Heal" => $"+{v} HP",
+        _      => "—"
     };
 
-    string LogLineClass(string line)
+    // ── Structured log parser ─────────────────────────────────────────────
+    List<TurnEvent> ParseEntry(string desc, string playerName)
     {
-        if (line.StartsWith("ATAQUE:"))    return "log-attack";
-        if (line.StartsWith("  Dano"))     return "log-dmg";
-        if (line.StartsWith("  ") || line.StartsWith("   ")) return "log-detail";
-        if (line.StartsWith("VITORIA"))    return "log-win";
-        if (line.StartsWith("DERROTA"))    return "log-lose";
-        if (line.StartsWith("[ATORDOADO]")) return "log-stun";
-        return "log-normal";
+        var list = new List<TurnEvent>();
+        string? pActor = null, pSkill = null, pAdv = null;
+
+        foreach (var raw in desc.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var ln = raw.Trim();
+            if (string.IsNullOrEmpty(ln) || ln.StartsWith("===")) continue;
+
+            if (ln.StartsWith("ATAQUE: "))
+            {
+                var rest = ln[8..];
+                var ui = rest.IndexOf(" usa '");
+                if (ui > 0)
+                {
+                    pActor = rest[..ui];
+                    var au = rest[(ui + 6)..];
+                    var cq = au.IndexOf('\'');
+                    if (cq >= 0)
+                    {
+                        pSkill = au[..cq];
+                        var r2 = au[(cq + 1)..].Trim();
+                        pAdv = r2.Contains("DESVANTAGEM") ? "desvantagem"
+                             : r2.Contains("VANTAGEM")   ? "vantagem" : "";
+                    }
+                }
+                continue;
+            }
+
+            if (ln.StartsWith("Dano causado: ") && pActor != null)
+            {
+                var rest = ln[14..].Trim();
+                var si = rest.IndexOf(' ');
+                int.TryParse(si > 0 ? rest[..si] : rest, out int dmg);
+                var tags = Regex.Matches(rest, @"\[([^\]]+)\]")
+                                .Select(m => m.Groups[1].Value).ToArray();
+                list.Add(new TurnEvent
+                {
+                    Type = "attack", Actor = pActor, IsPlayer = pActor == playerName,
+                    Skill = pSkill ?? "", Damage = dmg, Tags = tags, Advantage = pAdv ?? ""
+                });
+                pActor = null; pSkill = null; pAdv = null;
+                continue;
+            }
+
+            if (ln.StartsWith("[ATORDOADO]"))
+            {
+                var msg  = ln[12..].Trim();
+                var ne   = msg.IndexOf(" não ");
+                var name = ne > 0 ? msg[..ne] : msg;
+                list.Add(new TurnEvent
+                {
+                    Type = "stun", Actor = name, IsPlayer = name == playerName,
+                    Message = $"{name} esta atordoado e pula este turno."
+                });
+                continue;
+            }
+
+            if (ln.StartsWith("VITORIA"))
+            {
+                list.Add(new TurnEvent { Type = "win", Message = ln });
+                continue;
+            }
+
+            if (ln.StartsWith("DERROTA"))
+            {
+                list.Add(new TurnEvent { Type = "lose", Message = ln });
+                continue;
+            }
+
+            if (ln.Contains("subiu para o nivel"))
+            {
+                list.Add(new TurnEvent { Type = "levelup", Message = ln });
+                continue;
+            }
+        }
+
+        return list;
     }
+
+    string TagClass(string tag) =>
+        tag.StartsWith("CRITICO")  ? "badge-crit" :
+        tag.StartsWith("ATORDOOU") ? "badge-stun" :
+        tag.StartsWith("CURA")     ? "badge-heal" : "badge-def";
 }
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -51,146 +129,231 @@
 
         .panel { background: #14142a; border: 1px solid #2c2c4a; border-radius: 10px; padding: 1rem 1.2rem; }
 
-        .combatant-name { font-size: 1.1rem; font-weight: 700; color: #dcdcf0; }
-        .combatant-sub  { font-size: 0.82rem; color: #8888a8; }
-
-        .hp-bar  { height: 18px; border-radius: 6px; background: #1e1e3a; overflow: hidden; }
+        /* HP bars */
+        .combatant-name { font-size: 1.05rem; font-weight: 700; color: #dcdcf0; }
+        .combatant-sub  { font-size: 0.80rem; color: #8888a8; }
+        .hp-bar  { height: 14px; border-radius: 6px; background: #1e1e3a; overflow: hidden; }
         .hp-fill { height: 100%; border-radius: 6px; transition: width .3s ease; }
-        .hp-text { font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+        .hp-text { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+        .stun-badge { font-size:0.72rem; color:#ffdd55; background:#2a2a00; border:1px solid #5a5a00;
+                      border-radius:4px; padding:1px 6px; display:inline-block; margin-top:3px; }
 
-        /* Turn log cards */
-        .turn-card { background: #0a0a18; border: 1px solid #1e1e38; border-radius: 8px; overflow: hidden; }
-        .turn-card-header { background: #14142a; border-bottom: 1px solid #1e1e38;
-                            padding: 0.35rem 0.8rem; font-size: 0.72rem; color: #5a5a80;
-                            text-transform: uppercase; letter-spacing: .07em; }
-        .turn-card-body   { padding: 0.55rem 0.8rem; font-size: 0.86rem; line-height: 1.7; }
+        /* ── Carousel ── */
+        .carousel-wrap { background:#14142a; border:1px solid #2c2c4a; border-radius:10px; overflow:hidden; margin-bottom:1rem; }
 
-        .log-attack  { color: #e0e0e0; font-weight: 600; margin-top: 2px; }
-        .log-dmg     { color: #ff9966; }
-        .log-detail  { color: #aaaacc; }
-        .log-win     { color: #66ff99; font-weight: 700; }
-        .log-lose    { color: #ff6666; font-weight: 700; }
-        .log-stun    { color: #ffdd55; }
-        .log-normal  { color: #c0c0d8; }
+        .carousel-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.45rem 0.8rem; background: #0d0d1e; border-bottom: 1px solid #2c2c4a;
+        }
+        .nav-btn {
+            background: transparent; border: 1px solid #3a3a5a; color: #9090b0;
+            border-radius: 6px; padding: 0.15rem 0.65rem; font-size: 1rem;
+            cursor: pointer; line-height: 1.4; transition: border-color .15s, color .15s;
+        }
+        .nav-btn:hover:not(:disabled) { border-color: #7c5cbf; color: #c0a0ff; }
+        .nav-btn:disabled { opacity: .3; cursor: not-allowed; }
+        .turn-indicator { font-size: 0.76rem; color: #6060a0; letter-spacing: .04em; }
 
+        .turn-slide { display: none; }
+        .turn-body  { padding: 0.7rem 0.8rem; display: flex; flex-direction: column; gap: 0.45rem; min-height: 90px; }
+
+        /* Event rows */
+        .ev-row {
+            background: #0a0a18; border-radius: 8px;
+            padding: 0.55rem 0.75rem; border-left: 3px solid transparent;
+        }
+        .ev-row.is-player { border-left-color: #7c5cbf; }
+        .ev-row.is-enemy  { border-left-color: #cc4444; }
+        .ev-row.is-stun   { border-left-color: #aaaa00; background: #131300; }
+        .ev-row.is-win    { border-left-color: #22cc66; background: #041008; }
+        .ev-row.is-lose   { border-left-color: #cc2222; background: #100404; }
+        .ev-row.is-level  { border-left-color: #5555cc; background: #040418; }
+
+        /* Attack row internals */
+        .ev-actor       { font-size: 0.74rem; font-weight: 600; margin-bottom: 0.18rem; }
+        .ev-actor.player{ color: #c0a0ff; }
+        .ev-actor.enemy { color: #ff8888; }
+        .ev-skill       { font-size: 0.92rem; font-weight: 600; color: #dcdcf0; }
+        .ev-damage      { font-size: 1.05rem; font-weight: 700; color: #ffaa44; }
+        .ev-unit        { font-size: 0.72rem; color: #8888a8; margin-left: 2px; }
+
+        /* Badges */
+        .btag { font-size: 0.66rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;
+                display: inline-block; margin-left: 4px; vertical-align: middle; }
+        .badge-crit { background: #3a1800; color: #ffaa44; border: 1px solid #5a3000; }
+        .badge-stun { background: #2a2a00; color: #ffdd55; border: 1px solid #4a4a00; }
+        .badge-heal { background: #0a2a0a; color: #66dd88; border: 1px solid #1a4a1a; }
+        .badge-def  { background: #1a1a2a; color: #9090b8; border: 1px solid #2a2a3a; }
+        .badge-adv  { background: #001a2a; color: #66aaee; border: 1px solid #003050; }
+        .badge-dis  { background: #1a0000; color: #ee6666; border: 1px solid #300010; }
+
+        .ev-msg-stun  { font-size: 0.83rem; color: #cccc44; }
+        .ev-msg-win   { font-size: 0.86rem; color: #44cc88; font-weight: 600; }
+        .ev-msg-lose  { font-size: 0.86rem; color: #cc4444; font-weight: 600; }
+        .ev-msg-level { font-size: 0.80rem; color: #8888cc; }
+
+        /* Skills */
         .skill-btn {
             display: block; width: 100%; background: #14142a;
             border: 1px solid #2c2c4a; border-radius: 8px;
-            padding: 0.7rem 0.9rem; text-align: left;
+            padding: 0.65rem 0.85rem; text-align: left;
             color: #dcdcf0; transition: border-color .15s, background .15s;
         }
         .skill-btn:hover:not(:disabled) { border-color: #7c5cbf; background: #1e1e38; color: #fff; }
         .skill-btn:disabled { opacity: .4; cursor: not-allowed; }
-        .skill-name  { font-weight: 600; font-size: 0.95rem; }
-        .skill-stats { font-size: 0.8rem; color: #8888a8; margin-top: 2px; }
+        .skill-name  { font-weight: 600; font-size: 0.93rem; }
+        .skill-stats { font-size: 0.78rem; color: #8888a8; margin-top: 2px; }
+        .skills-label { font-size: 0.76rem; color: #6060a0; text-transform: uppercase;
+                        letter-spacing: .08em; margin-bottom: 8px; }
 
+        /* Banners */
         .banner-win  { background:#0f2d1a; border:1px solid #2a6a3a; border-radius:10px; padding:1.2rem; text-align:center; }
         .banner-lose { background:#2d0f0f; border:1px solid #6a2a2a; border-radius:10px; padding:1.2rem; text-align:center; }
-
-        .stun-badge { font-size:0.75rem; color:#ffdd55; background:#2a2a00; border:1px solid #5a5a00;
-                      border-radius:4px; padding:1px 6px; display:inline-block; margin-top:4px; }
-
-        .skills-label { font-size:0.78rem; color:#6060a0; text-transform:uppercase;
-                        letter-spacing:.08em; margin-bottom:8px; }
+        .btn-continue-win {
+            display: inline-block; background: #7c5cbf; border: 1px solid #7c5cbf;
+            color: #fff; font-weight: 600; font-size: 0.93rem;
+            padding: 0.5rem 1.4rem; border-radius: 8px; text-decoration: none;
+        }
+        .btn-continue-win:hover { background: #9a7cdf; border-color: #9a7cdf; color: #fff; }
 
         .btn-secondary-dark {
             background: transparent; border: 1px solid #3a3a5a; color: #9090b0;
             border-radius: 6px; padding: 0.3rem 0.8rem; font-size: 0.82rem; text-decoration: none;
         }
         .btn-secondary-dark:hover { border-color: #7c5cbf; color: #c0a0ff; }
-
-        .btn-continue-win {
-            display: inline-block; background: #7c5cbf; border: 1px solid #7c5cbf;
-            color: #fff; font-weight: 600; font-size: 0.95rem;
-            padding: 0.55rem 1.4rem; border-radius: 8px; text-decoration: none;
-        }
-        .btn-continue-win:hover { background: #9a7cdf; border-color: #9a7cdf; color: #fff; }
     </style>
 </head>
 <body>
 <div style="width:100%;max-width:680px;margin:0 auto;">
 
-    <!-- Cabecalho -->
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <span style="font-size:1.1rem; font-weight:700; color:#c0a0ff;">
-                Batalha #@battle.RunSequence
-            </span>
-            <span style="font-size:0.85rem; color:#6060a0; margin-left:8px;">
-                Turno @battle.TurnCount
-            </span>
+            <span style="font-size:1.1rem;font-weight:700;color:#c0a0ff;">Batalha #@battle.RunSequence</span>
+            <span style="font-size:0.82rem;color:#6060a0;margin-left:8px;">Turno @battle.TurnCount</span>
         </div>
         <a href="/Character" class="btn-secondary-dark">Personagem</a>
     </div>
 
-    <!-- INIMIGO -->
+    <!-- Enemy -->
     <div class="panel mb-3">
         <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
                 <div class="combatant-name">@battle.EnemyName</div>
-                <div class="combatant-sub">@ClassIcon(battle.EnemyClass) &middot; Nivel @battle.EnemyLevel</div>
-                @if (battle.EnemyStunned)
-                {
-                    <span class="stun-badge">ATORDOADO</span>
-                }
+                <div class="combatant-sub">@ClassLabel(battle.EnemyClass) &middot; Nivel @battle.EnemyLevel</div>
+                @if (battle.EnemyStunned) { <span class="stun-badge">ATORDOADO</span> }
             </div>
             <span class="hp-text text-danger">@battle.EnemyCurrentLife / @battle.EnemyMaxLife HP</span>
         </div>
-        <div class="hp-bar">
-            <div class="hp-fill @BarColor(enemyPct)" style="width:@enemyPct%"></div>
-        </div>
+        <div class="hp-bar"><div class="hp-fill @BarColor(enemyPct)" style="width:@enemyPct%"></div></div>
     </div>
 
-    <!-- LOG POR TURNO -->
+    <!-- Battle log carousel -->
     @if (battle.Logs.Any())
     {
-        <div class="mb-3 d-flex flex-column gap-2">
-            @foreach (var entry in battle.Logs.OrderByDescending(l => l.Turn))
-            {
-                <div class="turn-card">
-                    <div class="turn-card-header">Turno @entry.Turn</div>
-                    <div class="turn-card-body">
-                        @foreach (var line in entry.Description.Split('\n'))
-                        {
-                            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("===")) { continue; }
-                            <div class="@LogLineClass(line)">@line</div>
-                        }
+        var sortedLogs = battle.Logs.OrderBy(l => l.Turn).ToList();
+
+        <div class="carousel-wrap mb-3">
+            <div class="carousel-nav">
+                <button class="nav-btn" id="btn-prev">&#8592;</button>
+                <span class="turn-indicator" id="turn-indicator"></span>
+                <button class="nav-btn" id="btn-next">&#8594;</button>
+            </div>
+
+            <div id="carousel-slides">
+                @foreach (var entry in sortedLogs)
+                {
+                    var events = ParseEntry(entry.Description, character.Name);
+                    <div class="turn-slide" data-turn="@entry.Turn">
+                        <div class="turn-body">
+                            @foreach (var ev in events)
+                            {
+                                @if (ev.Type == "attack")
+                                {
+                                    <div class="ev-row @(ev.IsPlayer ? "is-player" : "is-enemy")">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="ev-actor @(ev.IsPlayer ? "player" : "enemy")">
+                                                @(ev.IsPlayer ? "&#9876;" : "&#9760;") @ev.Actor
+                                            </span>
+                                            @if (ev.Advantage == "vantagem")
+                                            {
+                                                <span class="btag badge-adv">VANTAGEM</span>
+                                            }
+                                            else if (ev.Advantage == "desvantagem")
+                                            {
+                                                <span class="btag badge-dis">DESVANTAGEM</span>
+                                            }
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-baseline mt-1">
+                                            <span class="ev-skill">@ev.Skill</span>
+                                            <div>
+                                                <span class="ev-damage">@ev.Damage</span>
+                                                <span class="ev-unit">dano</span>
+                                                @foreach (var tag in ev.Tags)
+                                                {
+                                                    <span class="btag @TagClass(tag)">@tag</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else if (ev.Type == "stun")
+                                {
+                                    <div class="ev-row is-stun">
+                                        <span class="ev-msg-stun">&#9889; @ev.Message</span>
+                                    </div>
+                                }
+                                else if (ev.Type == "win")
+                                {
+                                    <div class="ev-row is-win">
+                                        <span class="ev-msg-win">&#9733; @ev.Message</span>
+                                    </div>
+                                }
+                                else if (ev.Type == "lose")
+                                {
+                                    <div class="ev-row is-lose">
+                                        <span class="ev-msg-lose">&#9760; @ev.Message</span>
+                                    </div>
+                                }
+                                else if (ev.Type == "levelup")
+                                {
+                                    <div class="ev-row is-level">
+                                        <span class="ev-msg-level">&#9650; @ev.Message</span>
+                                    </div>
+                                }
+                            }
+                        </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
     }
     else
     {
-        <div class="panel mb-3" style="text-align:center; color:#6060a0; font-size:0.88rem;">
+        <div class="panel mb-3" style="text-align:center;color:#6060a0;font-size:0.88rem;">
             A batalha comecou. Escolha uma habilidade para atacar.
         </div>
     }
 
-    <!-- JOGADOR -->
+    <!-- Player -->
     <div class="panel mb-3">
         <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
                 <div class="combatant-name">@character.Name</div>
-                <div class="combatant-sub">@ClassIcon(character.Class) &middot; Nivel @character.Level &middot; Dano +@character.Damage</div>
-                @if (battle.PlayerStunned)
-                {
-                    <span class="stun-badge">ATORDOADO</span>
-                }
+                <div class="combatant-sub">@ClassLabel(character.Class) &middot; Nivel @character.Level &middot; Dano +@character.Damage</div>
+                @if (battle.PlayerStunned) { <span class="stun-badge">ATORDOADO</span> }
             </div>
             <span class="hp-text text-success">@battle.PlayerCurrentLife / @character.Life HP</span>
         </div>
-        <div class="hp-bar">
-            <div class="hp-fill @BarColor(playerPct)" style="width:@playerPct%"></div>
-        </div>
+        <div class="hp-bar"><div class="hp-fill @BarColor(playerPct)" style="width:@playerPct%"></div></div>
     </div>
 
-    <!-- ESTADOS FINAIS -->
+    <!-- End states -->
     @if (battle.Status == "Lost")
     {
         <div class="banner-lose">
-            <div style="font-size:1.3rem; color:#ff6666; font-weight:700; margin-bottom:6px;">Derrota</div>
-            <div style="color:#cc8888; margin-bottom:14px;">
+            <div style="font-size:1.3rem;color:#ff6666;font-weight:700;margin-bottom:6px;">Derrota</div>
+            <div style="color:#cc8888;margin-bottom:14px;">
                 @battle.EnemyName foi mais forte desta vez.<br />
                 <span style="font-size:0.82rem;">Sua run terminou. Reinicie para escolher uma nova classe.</span>
             </div>
@@ -202,8 +365,8 @@
     else if (battle.Status == "Won")
     {
         <div class="banner-win">
-            <div style="font-size:1.3rem; color:#66ff99; font-weight:700; margin-bottom:6px;">Vitoria!</div>
-            <div style="color:#88cc99; margin-bottom:14px;">
+            <div style="font-size:1.3rem;color:#66ff99;font-weight:700;margin-bottom:6px;">Vitoria!</div>
+            <div style="color:#88cc99;margin-bottom:14px;">
                 @battle.EnemyName foi derrotado! Voce e agora Nivel @character.Level.
             </div>
             <a href="/Battle/@battle.Id/Reward" class="btn-continue-win">Escolher Recompensa &rarr;</a>
@@ -211,7 +374,6 @@
     }
     else
     {
-        <!-- HABILIDADES (batalha ativa) -->
         <div class="skills-label">Escolha sua habilidade</div>
         <div class="row g-2">
             @foreach (var cs in character.CharacterSkills.OrderBy(x => x.Slot))
@@ -223,7 +385,7 @@
                         <button type="submit" class="skill-btn">
                             <div class="d-flex justify-content-between align-items-baseline">
                                 <span class="skill-name">@s.Name</span>
-                                <span style="font-size:0.75rem; color:@RarityColor(s.Rarity)">@RarityLabel(s.Rarity)</span>
+                                <span style="font-size:0.73rem;color:@RarityColor(s.Rarity)">@RarityLabel(s.Rarity)</span>
                             </div>
                             <div class="skill-stats">
                                 @s.BaseDamage dano base &nbsp;&middot;&nbsp; @EffectLabel(s.EffectType, s.EffectValue)
@@ -236,15 +398,60 @@
     }
 
 </div>
+
+<!-- Loading overlay -->
 <div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,5,20,.8);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
     <div style="width:42px;height:42px;border:4px solid #2c2c4a;border-top-color:#7c5cbf;border-radius:50%;animation:_sp .65s linear infinite;"></div>
     <div style="color:#9090b8;margin-top:12px;font-size:.82rem;">Carregando...</div>
 </div>
 <style>@@keyframes _sp{to{transform:rotate(360deg)}}</style>
+
 <script>
-(function(){var o=document.getElementById('loader');function s(){o.style.display='flex';}
-document.addEventListener('submit',s);
-document.addEventListener('click',function(e){var a=e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(!h||h[0]==='#'||/^(https?:|mailto:)/.test(h))return;s();});})();
+// Carousel
+(function () {
+    var slides = document.querySelectorAll('.turn-slide');
+    var total  = slides.length;
+    if (total === 0) return;
+    var cur = total - 1;
+
+    var btnPrev = document.getElementById('btn-prev');
+    var btnNext = document.getElementById('btn-next');
+    var indic   = document.getElementById('turn-indicator');
+
+    function show(i) {
+        slides.forEach(function (s) { s.style.display = 'none'; });
+        slides[i].style.display = 'block';
+        btnPrev.disabled = (i === 0);
+        btnNext.disabled = (i === total - 1);
+        indic.textContent = 'Turno ' + slides[i].dataset.turn + ' / ' + total;
+    }
+
+    btnPrev.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (cur > 0) show(--cur);
+    });
+    btnNext.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (cur < total - 1) show(++cur);
+    });
+
+    show(cur);
+})();
+
+// Loading overlay (skip carousel buttons)
+(function () {
+    var o = document.getElementById('loader');
+    function s() { o.style.display = 'flex'; }
+    document.addEventListener('submit', s);
+    document.addEventListener('click', function (e) {
+        if (e.target.id === 'btn-prev' || e.target.id === 'btn-next') return;
+        var a = e.target.closest('a[href]');
+        if (!a) return;
+        var h = a.getAttribute('href') || '';
+        if (!h || h[0] === '#' || /^(https?:|mailto:)/.test(h)) return;
+        s();
+    });
+})();
 </script>
 </body>
 </html>
