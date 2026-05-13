@@ -11,6 +11,10 @@
         { "Epic" => "Epico", "Rare" => "Raro", _ => "Comum" };
     string RarityColor(string r) => r switch
         { "Epic" => "#ffd700", "Rare" => "#56b4e9", _ => "#888899" };
+    string SkillClassLabel(string c) => c switch
+        { "Warrior" => "Guerreiro", "Mage" => "Mago", "Archer" => "Arqueiro", _ => "Universal" };
+    string SkillClassColor(string c) => c switch
+        { "Warrior" => "#e08060", "Mage" => "#a080d8", "Archer" => "#60b870", _ => "#8888aa" };
     string EffectLabel(string e, int v) => e switch
     {
         "Crit" => "50% Critico",
@@ -168,6 +172,8 @@
                             <div class="skill-desc">@s.Description</div>
                             <div class="skill-stats">
                                 <strong>@s.BaseDamage</strong> dano base &nbsp;&middot;&nbsp; @EffectLabel(s.EffectType, s.EffectValue)
+                                &nbsp;&middot;&nbsp;
+                                <span style="color:@SkillClassColor(s.ClassName)">@SkillClassLabel(s.ClassName)</span>
                             </div>
                         </div>
                     </div>

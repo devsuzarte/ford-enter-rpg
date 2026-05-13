@@ -3,6 +3,7 @@
 
     var acquiredName        = TempData["AcquiredSkillName"]?.ToString() ?? "";
     var acquiredRarity      = TempData["AcquiredSkillRarity"]?.ToString() ?? "Common";
+    var acquiredClassName   = TempData["AcquiredSkillClassName"]?.ToString() ?? "Any";
     var acquiredBaseDamage  = int.TryParse(TempData["AcquiredSkillBaseDamage"]?.ToString(), out int ad) ? ad : 0;
     var acquiredEffectType  = TempData["AcquiredSkillEffectType"]?.ToString() ?? "";
     var acquiredEffectValue = int.TryParse(TempData["AcquiredSkillEffectValue"]?.ToString(), out int aev) ? aev : 0;
@@ -10,6 +11,7 @@
 
     var replacedName        = TempData["ReplacedSkillName"]?.ToString();
     var replacedRarity      = TempData["ReplacedSkillRarity"]?.ToString() ?? "Common";
+    var replacedClassName   = TempData["ReplacedSkillClassName"]?.ToString() ?? "Any";
     var replacedBaseDamage  = int.TryParse(TempData["ReplacedSkillBaseDamage"]?.ToString(), out int rd) ? rd : 0;
     var replacedEffectType  = TempData["ReplacedSkillEffectType"]?.ToString() ?? "";
     var replacedEffectValue = int.TryParse(TempData["ReplacedSkillEffectValue"]?.ToString(), out int rev) ? rev : 0;
@@ -21,6 +23,10 @@
         { "Epic" => "Epico", "Rare" => "Raro", _ => "Comum" };
     string RarityColor(string r) => r switch
         { "Epic" => "#ffd700", "Rare" => "#56b4e9", _ => "#888899" };
+    string SkillClassLabel(string c) => c switch
+        { "Warrior" => "Guerreiro", "Mage" => "Mago", "Archer" => "Arqueiro", _ => "Universal" };
+    string SkillClassColor(string c) => c switch
+        { "Warrior" => "#e08060", "Mage" => "#a080d8", "Archer" => "#60b870", _ => "#8888aa" };
     string EffectLabel(string e, int v) => e switch
     {
         "Crit" => "50% Critico",
@@ -98,6 +104,7 @@
                 <div class="skill-desc">@replacedDescription</div>
                 <div class="skill-stats">
                     <strong>@replacedBaseDamage</strong> dano &middot; @EffectLabel(replacedEffectType, replacedEffectValue)
+                    &middot; <span style="color:@SkillClassColor(replacedClassName)">@SkillClassLabel(replacedClassName)</span>
                 </div>
             </div>
 
@@ -112,6 +119,7 @@
             <div class="skill-desc">@acquiredDescription</div>
             <div class="skill-stats">
                 <strong>@acquiredBaseDamage</strong> dano &middot; @EffectLabel(acquiredEffectType, acquiredEffectValue)
+                &middot; <span style="color:@SkillClassColor(acquiredClassName)">@SkillClassLabel(acquiredClassName)</span>
             </div>
         </div>
 

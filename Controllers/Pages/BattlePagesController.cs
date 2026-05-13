@@ -114,6 +114,7 @@ namespace FordEnterRPG.Controllers.Pages
             {
                 TempData["AcquiredSkillName"]        = acquired.Name;
                 TempData["AcquiredSkillRarity"]      = acquired.Rarity;
+                TempData["AcquiredSkillClassName"]   = acquired.ClassName;
                 TempData["AcquiredSkillBaseDamage"]  = acquired.BaseDamage.ToString();
                 TempData["AcquiredSkillEffectType"]  = acquired.EffectType;
                 TempData["AcquiredSkillEffectValue"] = acquired.EffectValue.ToString();
@@ -123,6 +124,7 @@ namespace FordEnterRPG.Controllers.Pages
                 {
                     TempData["ReplacedSkillName"]        = replaced.Name;
                     TempData["ReplacedSkillRarity"]      = replaced.Rarity;
+                    TempData["ReplacedSkillClassName"]   = replaced.ClassName;
                     TempData["ReplacedSkillBaseDamage"]  = replaced.BaseDamage.ToString();
                     TempData["ReplacedSkillEffectType"]  = replaced.EffectType;
                     TempData["ReplacedSkillEffectValue"] = replaced.EffectValue.ToString();
