@@ -22,6 +22,7 @@ namespace FordEnterRPG.Models
         public string Status { get; set; } = "Active"; // Active, Won, Lost
         public bool RewardClaimed { get; set; } = false;
         public int TurnCount { get; set; } = 0;
+        public int RunSequence { get; set; } = 0;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public ICollection<BattleLog> Logs { get; set; } = new List<BattleLog>();

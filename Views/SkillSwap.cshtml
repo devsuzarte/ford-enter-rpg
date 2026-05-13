@@ -1,0 +1,134 @@
+@{
+    ViewData["Title"] = "Habilidade Obtida";
+
+    var acquiredName        = TempData["AcquiredSkillName"]?.ToString() ?? "";
+    var acquiredRarity      = TempData["AcquiredSkillRarity"]?.ToString() ?? "Common";
+    var acquiredBaseDamage  = int.TryParse(TempData["AcquiredSkillBaseDamage"]?.ToString(), out int ad) ? ad : 0;
+    var acquiredEffectType  = TempData["AcquiredSkillEffectType"]?.ToString() ?? "";
+    var acquiredEffectValue = int.TryParse(TempData["AcquiredSkillEffectValue"]?.ToString(), out int aev) ? aev : 0;
+    var acquiredDescription = TempData["AcquiredSkillDescription"]?.ToString() ?? "";
+
+    var replacedName        = TempData["ReplacedSkillName"]?.ToString();
+    var replacedRarity      = TempData["ReplacedSkillRarity"]?.ToString() ?? "Common";
+    var replacedBaseDamage  = int.TryParse(TempData["ReplacedSkillBaseDamage"]?.ToString(), out int rd) ? rd : 0;
+    var replacedEffectType  = TempData["ReplacedSkillEffectType"]?.ToString() ?? "";
+    var replacedEffectValue = int.TryParse(TempData["ReplacedSkillEffectValue"]?.ToString(), out int rev) ? rev : 0;
+    var replacedDescription = TempData["ReplacedSkillDescription"]?.ToString() ?? "";
+
+    bool wasReplacement = replacedName != null;
+
+    string RarityLabel(string r) => r switch
+        { "Epic" => "Epico", "Rare" => "Raro", _ => "Comum" };
+    string RarityColor(string r) => r switch
+        { "Epic" => "#ffd700", "Rare" => "#56b4e9", _ => "#888899" };
+    string EffectLabel(string e, int v) => e switch
+    {
+        "Crit" => "50% Critico",
+        "Stun" => "30% Atordoar",
+        "Heal" => $"+{v} HP",
+        _      => "Sem efeito"
+    };
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — FordEnterRPG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+        body { background: #0d0d1a; color: #dcdcf0; font-family: 'Segoe UI', sans-serif;
+               min-height: 100vh; display: flex; justify-content: center;
+               align-items: center; padding: 2rem 1rem; }
+
+        .page-title { color: #c0a0ff; font-size: 1.5rem; font-weight: 700; }
+        .page-sub   { color: #8080a0; font-size: .88rem; }
+
+        .skill-card {
+            background: #14142a;
+            border: 2px solid #2c2c4a;
+            border-radius: 12px;
+            padding: 1.2rem 1rem;
+            text-align: left;
+            width: 200px;
+        }
+        .skill-card.acquired { border-color: #7c5cbf; }
+        .skill-card.replaced { border-color: #4a2a2a; opacity: .75; }
+
+        .skill-label  { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em;
+                        margin-bottom: .5rem; font-weight: 600; }
+        .skill-name   { font-size: .95rem; font-weight: 700; color: #dcdcf0; margin-bottom: .2rem; }
+        .skill-rarity { font-size: .72rem; margin-bottom: .4rem; }
+        .skill-desc   { font-size: .75rem; color: #6868a0; margin-bottom: .5rem; }
+        .skill-stats  { font-size: .78rem; color: #9090b8; }
+        .skill-stats strong { color: #e0e0e0; }
+
+        .arrow { font-size: 2rem; color: #7c5cbf; line-height: 1; }
+
+        .btn-continue {
+            background: #7c5cbf; border: none; color: #fff;
+            font-weight: 600; font-size: 1rem;
+            padding: .7rem 2rem; border-radius: 8px;
+            text-decoration: none; display: inline-block;
+        }
+        .btn-continue:hover { background: #9a7cdf; color: #fff; }
+    </style>
+</head>
+<body>
+<div style="width:100%;max-width:560px;margin:0 auto;text-align:center;">
+
+    <div class="page-title mb-1">
+        @(wasReplacement ? "Habilidade Substituida!" : "Nova Habilidade!")
+    </div>
+    <div class="page-sub mb-5">
+        @(wasReplacement
+            ? $"A habilidade mais fraca foi trocada pela nova."
+            : $"Uma nova habilidade foi adicionada ao seu repertorio.")
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center gap-4 mb-5 flex-wrap">
+
+        @if (wasReplacement)
+        {
+            <!-- Habilidade removida -->
+            <div class="skill-card replaced">
+                <div class="skill-label" style="color:#ff6666;">Removida</div>
+                <div class="skill-name">@replacedName</div>
+                <div class="skill-rarity" style="color:@RarityColor(replacedRarity)">@RarityLabel(replacedRarity)</div>
+                <div class="skill-desc">@replacedDescription</div>
+                <div class="skill-stats">
+                    <strong>@replacedBaseDamage</strong> dano &middot; @EffectLabel(replacedEffectType, replacedEffectValue)
+                </div>
+            </div>
+
+            <div class="arrow">&rarr;</div>
+        }
+
+        <!-- Habilidade adquirida -->
+        <div class="skill-card acquired">
+            <div class="skill-label" style="color:#66cc88;">Adquirida</div>
+            <div class="skill-name">@acquiredName</div>
+            <div class="skill-rarity" style="color:@RarityColor(acquiredRarity)">@RarityLabel(acquiredRarity)</div>
+            <div class="skill-desc">@acquiredDescription</div>
+            <div class="skill-stats">
+                <strong>@acquiredBaseDamage</strong> dano &middot; @EffectLabel(acquiredEffectType, acquiredEffectValue)
+            </div>
+        </div>
+
+    </div>
+
+    <a href="/Battle/Start" class="btn-continue">Continuar &rarr;</a>
+
+</div>
+<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,5,20,.8);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:42px;height:42px;border:4px solid #2c2c4a;border-top-color:#7c5cbf;border-radius:50%;animation:_sp .65s linear infinite;"></div>
+    <div style="color:#9090b8;margin-top:12px;font-size:.82rem;">Carregando...</div>
+</div>
+<style>@@keyframes _sp{to{transform:rotate(360deg)}}</style>
+<script>
+(function(){var o=document.getElementById('loader');function s(){o.style.display='flex';}
+document.addEventListener('submit',s);
+document.addEventListener('click',function(e){var a=e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(!h||h[0]==='#'||/^(https?:|mailto:)/.test(h))return;s();});})();
+</script>
+</body>
+</html>

@@ -47,10 +47,6 @@ namespace FordEnterRPG.Controllers.Pages
             if (battle == null || battle.CharacterId != character.Id)
                 return Redirect("/Character");
 
-            // Won + reward not claimed → show reward page
-            if (battle.Status == "Won" && !battle.RewardClaimed)
-                return Redirect($"/Battle/{id}/Reward");
-
             var full = await _characterService.GetByIdWithSkillsAsync(character.Id);
             ViewBag.Character = full;
             ViewBag.Battle = battle;
@@ -112,8 +108,40 @@ namespace FordEnterRPG.Controllers.Pages
             if (battle == null || battle.CharacterId != character.Id || battle.Status != "Won" || battle.RewardClaimed)
                 return Redirect("/Character");
 
-            await _battleService.ClaimRewardAsync(battle, character, choice);
+            var (replaced, acquired) = await _battleService.ClaimRewardAsync(battle, character, choice);
+
+            if (choice == "Skill" && acquired != null)
+            {
+                TempData["AcquiredSkillName"]        = acquired.Name;
+                TempData["AcquiredSkillRarity"]      = acquired.Rarity;
+                TempData["AcquiredSkillBaseDamage"]  = acquired.BaseDamage.ToString();
+                TempData["AcquiredSkillEffectType"]  = acquired.EffectType;
+                TempData["AcquiredSkillEffectValue"] = acquired.EffectValue.ToString();
+                TempData["AcquiredSkillDescription"] = acquired.Description;
+
+                if (replaced != null)
+                {
+                    TempData["ReplacedSkillName"]        = replaced.Name;
+                    TempData["ReplacedSkillRarity"]      = replaced.Rarity;
+                    TempData["ReplacedSkillBaseDamage"]  = replaced.BaseDamage.ToString();
+                    TempData["ReplacedSkillEffectType"]  = replaced.EffectType;
+                    TempData["ReplacedSkillEffectValue"] = replaced.EffectValue.ToString();
+                    TempData["ReplacedSkillDescription"] = replaced.Description;
+                }
+
+                return Redirect("/Battle/SkillSwap");
+            }
+
             return Redirect("/Battle/Start");
+        }
+
+        [HttpGet("/Battle/SkillSwap")]
+        public IActionResult SkillSwap()
+        {
+            if (TempData.Peek("AcquiredSkillName") == null)
+                return Redirect("/Character");
+
+            return View("~/Views/SkillSwap.cshtml");
         }
 
         private int GetUserId()

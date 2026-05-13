@@ -26,16 +26,14 @@
         _       => "—"
     };
 
-    // Colore as linhas do log por prefixo
     string LogLineClass(string line)
     {
-        if (line.StartsWith("ATAQUE:"))   return "log-attack";
-        if (line.StartsWith("  Dano"))    return "log-dmg";
+        if (line.StartsWith("ATAQUE:"))    return "log-attack";
+        if (line.StartsWith("  Dano"))     return "log-dmg";
         if (line.StartsWith("  ") || line.StartsWith("   ")) return "log-detail";
-        if (line.StartsWith("VITORIA"))   return "log-win";
-        if (line.StartsWith("DERROTA"))   return "log-lose";
+        if (line.StartsWith("VITORIA"))    return "log-win";
+        if (line.StartsWith("DERROTA"))    return "log-lose";
         if (line.StartsWith("[ATORDOADO]")) return "log-stun";
-        if (line.StartsWith("==="))       return "log-header";
         return "log-normal";
     }
 }
@@ -44,99 +42,79 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Batalha #@battle.Id — FordEnterRPG</title>
+    <title>Batalha #@battle.RunSequence — FordEnterRPG</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <style>
         body { background: #0d0d1a; color: #dcdcf0; font-family: 'Segoe UI', sans-serif;
                min-height: 100vh; display: flex; justify-content: center;
                align-items: flex-start; padding: 1.5rem 1rem; }
 
-        /* Cards */
         .panel { background: #14142a; border: 1px solid #2c2c4a; border-radius: 10px; padding: 1rem 1.2rem; }
 
-        /* Combatentes */
         .combatant-name { font-size: 1.1rem; font-weight: 700; color: #dcdcf0; }
         .combatant-sub  { font-size: 0.82rem; color: #8888a8; }
 
-        /* Barra de HP */
-        .hp-bar { height: 18px; border-radius: 6px; background: #1e1e3a; overflow: hidden; }
+        .hp-bar  { height: 18px; border-radius: 6px; background: #1e1e3a; overflow: hidden; }
         .hp-fill { height: 100%; border-radius: 6px; transition: width .3s ease; }
         .hp-text { font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
 
-        /* Log de batalha */
-        .battle-log {
-            background: #0a0a18;
-            border: 1px solid #1e1e38;
-            border-radius: 8px;
-            padding: 0.8rem 1rem;
-            max-height: 280px;
-            overflow-y: auto;
-            font-size: 0.88rem;
-            line-height: 1.65;
-        }
-        .log-header { color: #5a5a80; font-size: 0.75rem; letter-spacing: .05em; margin-top: 6px; }
-        .log-attack  { color: #e0e0e0; font-weight: 600; margin-top: 4px; }
+        /* Turn log cards */
+        .turn-card { background: #0a0a18; border: 1px solid #1e1e38; border-radius: 8px; overflow: hidden; }
+        .turn-card-header { background: #14142a; border-bottom: 1px solid #1e1e38;
+                            padding: 0.35rem 0.8rem; font-size: 0.72rem; color: #5a5a80;
+                            text-transform: uppercase; letter-spacing: .07em; }
+        .turn-card-body   { padding: 0.55rem 0.8rem; font-size: 0.86rem; line-height: 1.7; }
+
+        .log-attack  { color: #e0e0e0; font-weight: 600; margin-top: 2px; }
         .log-dmg     { color: #ff9966; }
         .log-detail  { color: #aaaacc; }
-        .log-win     { color: #66ff99; font-weight: 700; font-size: 1rem; }
-        .log-lose    { color: #ff6666; font-weight: 700; font-size: 1rem; }
+        .log-win     { color: #66ff99; font-weight: 700; }
+        .log-lose    { color: #ff6666; font-weight: 700; }
         .log-stun    { color: #ffdd55; }
         .log-normal  { color: #c0c0d8; }
 
-        /* Botoes de habilidade */
         .skill-btn {
-            display: block;
-            width: 100%;
-            background: #14142a;
-            border: 1px solid #2c2c4a;
-            border-radius: 8px;
-            padding: 0.7rem 0.9rem;
-            text-align: left;
-            color: #dcdcf0;
-            transition: border-color .15s, background .15s;
+            display: block; width: 100%; background: #14142a;
+            border: 1px solid #2c2c4a; border-radius: 8px;
+            padding: 0.7rem 0.9rem; text-align: left;
+            color: #dcdcf0; transition: border-color .15s, background .15s;
         }
-        .skill-btn:hover:not(:disabled) {
-            border-color: #7c5cbf;
-            background: #1e1e38;
-            color: #fff;
-        }
+        .skill-btn:hover:not(:disabled) { border-color: #7c5cbf; background: #1e1e38; color: #fff; }
         .skill-btn:disabled { opacity: .4; cursor: not-allowed; }
         .skill-name  { font-weight: 600; font-size: 0.95rem; }
         .skill-stats { font-size: 0.8rem; color: #8888a8; margin-top: 2px; }
 
-        /* Banners de resultado */
         .banner-win  { background:#0f2d1a; border:1px solid #2a6a3a; border-radius:10px; padding:1.2rem; text-align:center; }
         .banner-lose { background:#2d0f0f; border:1px solid #6a2a2a; border-radius:10px; padding:1.2rem; text-align:center; }
 
-        /* Status badge */
         .stun-badge { font-size:0.75rem; color:#ffdd55; background:#2a2a00; border:1px solid #5a5a00;
                       border-radius:4px; padding:1px 6px; display:inline-block; margin-top:4px; }
 
-        /* Secao de habilidades */
         .skills-label { font-size:0.78rem; color:#6060a0; text-transform:uppercase;
                         letter-spacing:.08em; margin-bottom:8px; }
 
-        /* Botao secundario */
         .btn-secondary-dark {
-            background: transparent;
-            border: 1px solid #3a3a5a;
-            color: #9090b0;
-            border-radius: 6px;
-            padding: 0.3rem 0.8rem;
-            font-size: 0.82rem;
-            text-decoration: none;
+            background: transparent; border: 1px solid #3a3a5a; color: #9090b0;
+            border-radius: 6px; padding: 0.3rem 0.8rem; font-size: 0.82rem; text-decoration: none;
         }
         .btn-secondary-dark:hover { border-color: #7c5cbf; color: #c0a0ff; }
+
+        .btn-continue-win {
+            display: inline-block; background: #7c5cbf; border: 1px solid #7c5cbf;
+            color: #fff; font-weight: 600; font-size: 0.95rem;
+            padding: 0.55rem 1.4rem; border-radius: 8px; text-decoration: none;
+        }
+        .btn-continue-win:hover { background: #9a7cdf; border-color: #9a7cdf; color: #fff; }
     </style>
 </head>
 <body>
-<div style="width:100%;max-width:680px;">
+<div style="width:100%;max-width:680px;margin:0 auto;">
 
     <!-- Cabecalho -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <span style="font-size:1.1rem; font-weight:700; color:#c0a0ff;">
-                Batalha #@battle.Id
+                Batalha #@battle.RunSequence
             </span>
             <span style="font-size:0.85rem; color:#6060a0; margin-left:8px;">
                 Turno @battle.TurnCount
@@ -163,17 +141,22 @@
         </div>
     </div>
 
-    <!-- LOG -->
+    <!-- LOG POR TURNO -->
     @if (battle.Logs.Any())
     {
-        <div class="battle-log mb-3">
+        <div class="mb-3 d-flex flex-column gap-2">
             @foreach (var entry in battle.Logs.OrderByDescending(l => l.Turn))
             {
-                foreach (var line in entry.Description.Split('\n'))
-                {
-                    if (string.IsNullOrWhiteSpace(line)) { <div style="height:4px"></div> continue; }
-                    <div class="@LogLineClass(line)">@line</div>
-                }
+                <div class="turn-card">
+                    <div class="turn-card-header">Turno @entry.Turn</div>
+                    <div class="turn-card-body">
+                        @foreach (var line in entry.Description.Split('\n'))
+                        {
+                            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("===")) { continue; }
+                            <div class="@LogLineClass(line)">@line</div>
+                        }
+                    </div>
+                </div>
             }
         </div>
     }
@@ -207,12 +190,12 @@
     {
         <div class="banner-lose">
             <div style="font-size:1.3rem; color:#ff6666; font-weight:700; margin-bottom:6px;">Derrota</div>
-            <div style="color:#cc8888; margin-bottom:12px;">
+            <div style="color:#cc8888; margin-bottom:14px;">
                 @battle.EnemyName foi mais forte desta vez.<br />
                 <span style="font-size:0.82rem;">Sua run terminou. Reinicie para escolher uma nova classe.</span>
             </div>
             <form method="post" action="/Character/Reset" class="d-inline">
-                <button type="submit" class="btn btn-danger btn-sm me-2">Nova Run</button>
+                <button type="submit" class="btn btn-danger btn-sm">Nova Run</button>
             </form>
         </div>
     }
@@ -220,10 +203,10 @@
     {
         <div class="banner-win">
             <div style="font-size:1.3rem; color:#66ff99; font-weight:700; margin-bottom:6px;">Vitoria!</div>
-            <div style="color:#88cc99; margin-bottom:12px;">
+            <div style="color:#88cc99; margin-bottom:14px;">
                 @battle.EnemyName foi derrotado! Voce e agora Nivel @character.Level.
             </div>
-            <a href="/Battle/@battle.Id/Reward" class="btn btn-warning btn-sm">Escolher Recompensa</a>
+            <a href="/Battle/@battle.Id/Reward" class="btn-continue-win">Escolher Recompensa &rarr;</a>
         </div>
     }
     else

@@ -46,6 +46,8 @@ namespace FordEnterRPG.Services
             var stats = EnemyBaseStats[enemyClass];
             int scale = player.Level - 1;
 
+            int seq = await _db.Battles.CountAsync(b => b.CharacterId == player.Id) + 1;
+
             var battle = new Battle
             {
                 CharacterId    = player.Id,
@@ -57,6 +59,7 @@ namespace FordEnterRPG.Services
                 EnemyDamage    = stats.damage + scale,
                 PlayerCurrentLife = player.Life,
                 Status         = "Active",
+                RunSequence    = seq,
                 CreatedAt      = DateTime.UtcNow
             };
 
@@ -195,8 +198,11 @@ namespace FordEnterRPG.Services
 
         // ── Recompensa ────────────────────────────────────────────────────
 
-        public async Task ClaimRewardAsync(Battle battle, Character player, string choice)
+        public async Task<(Skill? replaced, Skill? acquired)> ClaimRewardAsync(Battle battle, Character player, string choice)
         {
+            Skill? replaced = null;
+            Skill? acquired = null;
+
             switch (choice)
             {
                 case "Life":
@@ -221,17 +227,19 @@ namespace FordEnterRPG.Services
 
                     if (newSkill != null)
                     {
+                        acquired = newSkill;
                         var slots = await _db.CharacterSkills
                             .Include(cs => cs.Skill)
                             .Where(cs => cs.CharacterId == player.Id)
                             .OrderBy(cs => cs.Skill.BaseDamage)
                             .ToListAsync();
 
-                            if (slots.Count >= 4)
+                        if (slots.Count >= 4)
                         {
                             // PK is (CharacterId, SkillId) — can't UPDATE a PK in EF Core.
                             // Remove old row first, then insert new one in the same slot.
                             var weakest  = slots.First();
+                            replaced     = weakest.Skill;
                             int keptSlot = weakest.Slot;
                             _db.CharacterSkills.Remove(weakest);
                             await _db.SaveChangesAsync();
@@ -259,6 +267,8 @@ namespace FordEnterRPG.Services
             _db.Battles.Update(battle);
             _db.Characters.Update(player);
             await _db.SaveChangesAsync();
+
+            return (replaced, acquired);
         }
 
         // ── Helpers ───────────────────────────────────────────────────────
