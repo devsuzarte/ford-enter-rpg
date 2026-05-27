@@ -72,6 +72,14 @@ namespace FordEnterRPG.Services
             await _db.Battles
                 .FirstOrDefaultAsync(b => b.CharacterId == characterId && b.Status == "Active");
 
+        public static double GetMissChance(Skill skill) =>
+            skill.EffectType == "Heal" ? 0.0 : skill.Rarity switch
+            {
+                "Epic" => 0.05,
+                "Rare" => 0.12,
+                _      => 0.20
+            };
+
         public async Task ExecuteTurnAsync(Battle battle, Character player, Skill skill)
         {
             var rng  = new Random();
@@ -87,31 +95,40 @@ namespace FordEnterRPG.Services
             }
             else
             {
-                int dmg = CalcDamage(
-                    skill.BaseDamage, player.Damage,
-                    player.Class, battle.EnemyClass,
-                    skill.EffectType, rng,
-                    out string tags);
-
-                battle.EnemyCurrentLife = Math.Max(0, battle.EnemyCurrentLife - dmg);
-
-                if (skill.EffectType == "Heal")
-                {
-                    int healed = Math.Min(skill.EffectValue, player.Life - battle.PlayerCurrentLife);
-                    battle.PlayerCurrentLife += healed;
-                    tags += $" [CURA +{healed} HP]";
-                }
-
-                if (skill.EffectType == "Stun" && rng.NextDouble() < 0.30)
-                {
-                    battle.EnemyStunned = true;
-                    tags += " [ATORDOOU!]";
-                }
-
                 string advText = AdvantageLabel(player.Class, battle.EnemyClass);
                 log.Add($"ATAQUE: {player.Name} usa '{skill.Name}'{advText}");
-                log.Add($"  Dano causado: {dmg}{tags}");
-                log.Add($"  Inimigo: {battle.EnemyCurrentLife}/{battle.EnemyMaxLife} HP");
+
+                bool missed = rng.NextDouble() < GetMissChance(skill);
+                if (missed)
+                {
+                    log.Add($"  [ERROU] O ataque falhou!");
+                }
+                else
+                {
+                    int dmg = CalcDamage(
+                        skill.BaseDamage, player.Damage,
+                        player.Class, battle.EnemyClass,
+                        skill.EffectType, rng,
+                        out string tags);
+
+                    battle.EnemyCurrentLife = Math.Max(0, battle.EnemyCurrentLife - dmg);
+
+                    if (skill.EffectType == "Heal")
+                    {
+                        int healed = Math.Min(skill.EffectValue, player.Life - battle.PlayerCurrentLife);
+                        battle.PlayerCurrentLife += healed;
+                        tags += $" [CURA +{healed} HP]";
+                    }
+
+                    if (skill.EffectType == "Stun" && rng.NextDouble() < 0.30)
+                    {
+                        battle.EnemyStunned = true;
+                        tags += " [ATORDOOU!]";
+                    }
+
+                    log.Add($"  Dano causado: {dmg}{tags}");
+                    log.Add($"  Inimigo: {battle.EnemyCurrentLife}/{battle.EnemyMaxLife} HP");
+                }
             }
 
             if (battle.EnemyCurrentLife <= 0)

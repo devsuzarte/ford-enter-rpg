@@ -10,43 +10,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] — FordEnterRPG</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
     <style>
-        body { background: #0d0d1a; color: #dcdcf0; font-family: 'Segoe UI', sans-serif;
-               min-height: 100vh; display: flex; justify-content: center;
-               align-items: center; padding: 2rem 1rem; }
+        body { display:flex; justify-content:center; align-items:center; padding:2rem 1rem; }
 
-        .page-title   { color: #ffd700; font-size: 1.6rem; font-weight: 700; }
-        .page-sub     { color: #9090b8; font-size: .92rem; }
+        .page-title { color:#ffd700; font-size:1.6rem; font-weight:700; }
+        .page-sub   { color:#9090b8; font-size:.92rem; }
 
         .reward-card {
-            background: #14142a;
-            border: 2px solid #2c2c4a;
-            border-radius: 12px;
-            padding: 1.5rem 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color .15s, background .15s;
-            height: 100%;
+            background:#14142a; border:2px solid #2c2c4a; border-radius:12px;
+            padding:1.5rem 1rem; text-align:center; cursor:pointer;
+            transition:border-color .2s, background .2s, transform .15s;
+            height:100%;
         }
-        .reward-card:hover { border-color: #7c5cbf; background: #1a1a38; }
-        .reward-icon  { font-size: 2.8rem; line-height: 1; margin-bottom: .6rem; color: #ffffff; }
-        .reward-title { font-size: 1rem; font-weight: 700; color: #dcdcf0; margin-bottom: .3rem; }
-        .reward-desc  { font-size: .8rem; color: #7070a0; margin-bottom: .6rem; }
-        .reward-stat  { font-size: .9rem; font-weight: 600; }
+        .reward-card:hover { border-color:#7c5cbf; background:#1a1a38; transform:translateY(-3px); }
+        .reward-icon  { font-size:2.8rem; line-height:1; margin-bottom:.6rem; }
+        .reward-title { font-size:1rem; font-weight:700; color:#dcdcf0; margin-bottom:.3rem; }
+        .reward-desc  { font-size:.8rem; color:#7070a0; margin-bottom:.6rem; }
+        .reward-stat  { font-size:.9rem; font-weight:600; }
 
-        .reward-btn {
-            background: transparent;
-            border: none;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
+        .reward-btn { background:transparent; border:none; padding:0; width:100%; height:100%; display:block; }
+        .reward-btn:focus .reward-card { border-color:#7c5cbf; }
+
+        /* skill choice special styling */
+        .skill-reward-card {
+            border-color: #3a2a60;
         }
-        .reward-btn:focus .reward-card { border-color: #7c5cbf; }
+        .skill-reward-card:hover {
+            border-color:#a080d8; background:#181428;
+        }
+
+        /* wheel legend */
+        .wheel-legend { display:flex; flex-direction:column; gap:.5rem; align-items:flex-start; }
+        .wl-item { display:flex; align-items:center; gap:.5rem; font-size:.85rem; }
+        .wl-dot  { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
     </style>
 </head>
 <body>
-<div style="width:100%;max-width:680px;">
+<div style="width:100%;max-width:720px;">
 
     <div class="text-center mb-5">
         <div class="page-title mb-1">Vitoria!</div>
@@ -91,16 +92,16 @@
         </div>
 
         <div class="col-md-4">
-            <form method="post" action="/Battle/@battle?.Id/Reward" class="h-100">
+            <form method="post" action="/Battle/@battle?.Id/Reward" class="h-100" id="skill-reward-form" data-no-loader>
                 <input type="hidden" name="choice" value="Skill" />
                 <button type="submit" class="reward-btn h-100">
-                    <div class="reward-card">
+                    <div class="reward-card skill-reward-card">
                         <div class="reward-icon">✦</div>
                         <div class="reward-title">Habilidade Aleatoria</div>
                         <div class="reward-desc">
                             Recebe uma nova habilidade. Se tiver 4, a mais fraca sera substituida.
                         </div>
-                        <div class="reward-stat" style="color:#56b4e9;">Surpresa!</div>
+                        <div class="reward-stat" style="color:#a080d8;">Girar a Roleta!</div>
                     </div>
                 </button>
             </form>
@@ -108,16 +109,46 @@
 
     </div>
 
+    <!-- Rarity legend -->
+    <div class="d-flex justify-content-center mt-4">
+        <div class="wheel-legend">
+            <div class="wl-item">
+                <div class="wl-dot" style="background:#7a5e00;border:1px solid #ffd700;"></div>
+                <span style="color:#ffd700;">Epico</span>
+                <span style="color:#6060a0;font-size:.78rem;">— maior chance (4x)</span>
+            </div>
+            <div class="wl-item">
+                <div class="wl-dot" style="background:#0d3a5c;border:1px solid #56b4e9;"></div>
+                <span style="color:#56b4e9;">Raro</span>
+                <span style="color:#6060a0;font-size:.78rem;">— chance media (2x)</span>
+            </div>
+            <div class="wl-item">
+                <div class="wl-dot" style="background:#252535;border:1px solid #888899;"></div>
+                <span style="color:#888899;">Comum</span>
+                <span style="color:#6060a0;font-size:.78rem;">— chance base (1x)</span>
+            </div>
+        </div>
+    </div>
+
 </div>
-<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,5,20,.8);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
-    <div style="width:42px;height:42px;border:4px solid #2c2c4a;border-top-color:#7c5cbf;border-radius:50%;animation:_sp .65s linear infinite;"></div>
-    <div style="color:#9090b8;margin-top:12px;font-size:.82rem;">Carregando...</div>
+
+<!-- Roulette wheel overlay -->
+<div id="wheel-overlay" class="wheel-overlay">
+    <div class="wheel-title">Girando a Roleta de Raridade</div>
+    <div class="wheel-wrap">
+        <div class="wheel-pointer"></div>
+        <canvas id="wheel-canvas" class="wheel-canvas" width="260" height="260"></canvas>
+    </div>
+    <div id="wheel-result" class="wheel-result" style="font-size:1.5rem;font-weight:700;opacity:0;transition:opacity .4s;min-height:2rem;"></div>
 </div>
-<style>@@keyframes _sp{to{transform:rotate(360deg)}}</style>
-<script>
-(function(){var o=document.getElementById('loader');function s(){o.style.display='flex';}
-document.addEventListener('submit',s);
-document.addEventListener('click',function(e){var a=e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(!h||h[0]==='#'||/^(https?:|mailto:)/.test(h))return;s();});})();
-</script>
+
+<!-- Generic loader -->
+<div id="loader" class="loader-overlay">
+    <div class="loader-spinner"></div>
+    <div class="loader-label">Carregando...</div>
+</div>
+
+<script src="/js/roulette.js"></script>
+<script src="/js/loader.js"></script>
 </body>
 </html>

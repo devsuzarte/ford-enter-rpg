@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160" fill="none">
+  <defs>
+    <radialGradient id="wglow" cx="50%" cy="60%" r="50%">
+      <stop offset="0%" stop-color="#e08060" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#e08060" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warmor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c07050"/>
+      <stop offset="100%" stop-color="#7a3a1a"/>
+    </linearGradient>
+    <linearGradient id="whelm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d08060"/>
+      <stop offset="100%" stop-color="#904030"/>
+    </linearGradient>
+    <linearGradient id="wshield" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a06040"/>
+      <stop offset="100%" stop-color="#5a2a10"/>
+    </linearGradient>
+    <linearGradient id="wsword" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e0e8f0"/>
+      <stop offset="100%" stop-color="#8090a0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- glow -->
+  <ellipse cx="60" cy="110" rx="46" ry="40" fill="url(#wglow)"/>
+
+  <!-- legs -->
+  <rect x="41" y="114" width="14" height="30" rx="5" fill="#5a2a0a"/>
+  <rect x="65" y="114" width="14" height="30" rx="5" fill="#5a2a0a"/>
+  <!-- boots -->
+  <rect x="39" y="136" width="18" height="10" rx="4" fill="#3a1800"/>
+  <rect x="63" y="136" width="18" height="10" rx="4" fill="#3a1800"/>
+
+  <!-- torso / chest plate -->
+  <rect x="34" y="78" width="52" height="40" rx="8" fill="url(#warmor)"/>
+  <!-- chest detail -->
+  <rect x="42" y="84" width="36" height="24" rx="4" fill="#90402a" opacity=".5"/>
+  <line x1="60" y1="84" x2="60" y2="108" stroke="#c06040" stroke-width="1.5" opacity=".6"/>
+  <!-- pauldrons -->
+  <ellipse cx="34" cy="84" rx="10" ry="8" fill="#c07050"/>
+  <ellipse cx="86" cy="84" rx="10" ry="8" fill="#c07050"/>
+
+  <!-- shield (left arm) -->
+  <rect x="10" y="84" width="22" height="30" rx="6" fill="url(#wshield)" stroke="#7a3a1a" stroke-width="1.5"/>
+  <line x1="21" y1="84" x2="21" y2="114" stroke="#7a3a1a" stroke-width="2"/>
+  <line x1="10" y1="99" x2="32" y2="99" stroke="#7a3a1a" stroke-width="2"/>
+  <circle cx="21" cy="99" r="4" fill="#c07840" stroke="#7a3a1a" stroke-width="1"/>
+
+  <!-- sword arm (right) -->
+  <line x1="86" y1="90" x2="108" y2="48" stroke="#9090b0" stroke-width="6" stroke-linecap="round"/>
+  <!-- sword blade -->
+  <rect x="103" y="28" width="6" height="38" rx="2" transform="rotate(30 103 28)" fill="url(#wsword)" stroke="#c0c8d8" stroke-width=".8"/>
+  <!-- crossguard -->
+  <rect x="96" y="62" width="22" height="5" rx="2" transform="rotate(30 96 62)" fill="#b09060"/>
+
+  <!-- neck -->
+  <rect x="52" y="64" width="16" height="16" rx="4" fill="#c07050"/>
+
+  <!-- helmet -->
+  <ellipse cx="60" cy="56" rx="22" ry="20" fill="url(#whelm)"/>
+  <!-- visor slot -->
+  <rect x="44" y="56" width="32" height="8" rx="3" fill="#1a0a04" opacity=".8"/>
+  <!-- crest -->
+  <path d="M50 36 Q60 18 70 36" stroke="#d06040" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- helmet trim -->
+  <path d="M38 56 Q60 44 82 56" stroke="#d08060" stroke-width="2" fill="none"/>
+</svg>

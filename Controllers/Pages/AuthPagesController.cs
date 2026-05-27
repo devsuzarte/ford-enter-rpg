@@ -4,6 +4,17 @@ using System.Security.Claims;
 
 namespace FordEnterRPG.Controllers.Pages
 {
+    public class RootController : Controller
+    {
+        [HttpGet("/")]
+        public IActionResult Index()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+                return Redirect("/Profile");
+            return Redirect("/SignIn");
+        }
+    }
+
     public class SignInPageController : Controller
     {
         private readonly Services.IUserService _userService;
@@ -15,6 +26,8 @@ namespace FordEnterRPG.Controllers.Pages
         [HttpGet("/SignIn")]
         public IActionResult Index()
         {
+            if (User.Identity?.IsAuthenticated == true)
+                return Redirect("/Profile");
             return View("~/Views/SignIn.cshtml");
         }
 

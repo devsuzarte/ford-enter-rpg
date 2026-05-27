@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160" fill="none">
+  <defs>
+    <radialGradient id="mglow" cx="50%" cy="55%" r="50%">
+      <stop offset="0%" stop-color="#a080d8" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#a080d8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="morb" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e0d0ff"/>
+      <stop offset="60%" stop-color="#9060d0"/>
+      <stop offset="100%" stop-color="#5030a0"/>
+    </radialGradient>
+    <linearGradient id="mrobe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a2a80"/>
+      <stop offset="100%" stop-color="#1a0a40"/>
+    </linearGradient>
+    <linearGradient id="mstaff" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8060a0"/>
+      <stop offset="100%" stop-color="#3a1860"/>
+    </linearGradient>
+  </defs>
+
+  <!-- glow -->
+  <ellipse cx="60" cy="100" rx="48" ry="42" fill="url(#mglow)"/>
+
+  <!-- robe / lower body -->
+  <path d="M30 100 Q28 145 35 150 L85 150 Q92 145 90 100Z" fill="url(#mrobe)"/>
+  <!-- robe hem detail -->
+  <path d="M30 150 Q45 142 60 150 Q75 142 90 150" stroke="#7050b0" stroke-width="1.5" fill="none"/>
+  <!-- robe side runes -->
+  <text x="35" y="130" font-family="serif" font-size="8" fill="#7050b0" opacity=".7">✦</text>
+  <text x="75" y="125" font-family="serif" font-size="8" fill="#7050b0" opacity=".7">✦</text>
+
+  <!-- torso robe -->
+  <path d="M35 70 L30 100 L90 100 L85 70 Q75 60 60 60 Q45 60 35 70Z" fill="#3a1870"/>
+  <!-- chest clasp -->
+  <circle cx="60" cy="78" r="5" fill="#8060c0" stroke="#c090ff" stroke-width="1"/>
+  <circle cx="60" cy="78" r="2.5" fill="#e0d0ff"/>
+
+  <!-- sleeves -->
+  <!-- left arm holding book -->
+  <path d="M35 72 Q18 78 16 98" stroke="#3a1870" stroke-width="14" stroke-linecap="round" fill="none"/>
+  <!-- right arm holding staff -->
+  <path d="M85 72 Q98 76 100 60" stroke="#3a1870" stroke-width="12" stroke-linecap="round" fill="none"/>
+
+  <!-- staff -->
+  <line x1="100" y1="20" x2="100" y2="105" stroke="url(#mstaff)" stroke-width="4" stroke-linecap="round"/>
+  <!-- staff runes -->
+  <rect x="97" y="50" width="6" height="3" rx="1" fill="#9060d0" opacity=".8"/>
+  <rect x="97" y="65" width="6" height="3" rx="1" fill="#9060d0" opacity=".8"/>
+  <!-- orb on staff -->
+  <circle cx="100" cy="18" r="14" fill="url(#morb)" opacity=".9"/>
+  <circle cx="95" cy="13" r="4" fill="white" opacity=".4"/>
+  <!-- orb glow -->
+  <circle cx="100" cy="18" r="17" stroke="#c090ff" stroke-width="1.5" fill="none" opacity=".5"/>
+  <circle cx="100" cy="18" r="20" stroke="#c090ff" stroke-width=".5" fill="none" opacity=".2"/>
+
+  <!-- spell book (left hand) -->
+  <rect x="8" y="88" width="16" height="20" rx="2" fill="#2a1050" stroke="#7050b0" stroke-width="1"/>
+  <line x1="16" y1="88" x2="16" y2="108" stroke="#7050b0" stroke-width=".8"/>
+  <text x="10" y="102" font-family="serif" font-size="7" fill="#9060d0">✦</text>
+
+  <!-- neck -->
+  <rect x="53" y="50" width="14" height="12" rx="4" fill="#5a3090"/>
+
+  <!-- head -->
+  <ellipse cx="60" cy="40" rx="18" ry="20" fill="#d4b896"/>
+  <!-- hood shadow -->
+  <ellipse cx="60" cy="30" rx="20" ry="14" fill="#2a1060" opacity=".7"/>
+
+  <!-- wizard hat -->
+  <path d="M38 40 Q40 25 60 6 Q80 25 82 40Z" fill="#2a1060" stroke="#7050a0" stroke-width="1.5"/>
+  <!-- hat brim -->
+  <ellipse cx="60" cy="40" rx="24" ry="5" fill="#3a1870" stroke="#7050a0" stroke-width="1"/>
+  <!-- hat star -->
+  <text x="54" y="28" font-family="serif" font-size="10" fill="#c090ff">★</text>
+
+  <!-- face: glowing eyes -->
+  <ellipse cx="53" cy="40" rx="3.5" ry="2.5" fill="#c090ff" opacity=".9"/>
+  <ellipse cx="67" cy="40" rx="3.5" ry="2.5" fill="#c090ff" opacity=".9"/>
+  <circle cx="53" cy="40" r="1.5" fill="white"/>
+  <circle cx="67" cy="40" r="1.5" fill="white"/>
+</svg>

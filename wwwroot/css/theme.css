@@ -1,0 +1,198 @@
+/* ── FordEnterRPG – shared theme ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+    --bg-page:    #0d0d1a;
+    --bg-card:    #14142a;
+    --bg-deep:    #0a0a18;
+    --border:     #2c2c4a;
+    --border-2:   #3a3a5a;
+    --text:       #dcdcf0;
+    --text-muted: #8888a8;
+    --text-dim:   #6060a0;
+    --accent:     #7c5cbf;
+    --accent-hi:  #9a7cdf;
+    --accent-lo:  #5c3c9f;
+    --gold:       #ffd700;
+    --blue:       #56b4e9;
+    --green:      #66dd88;
+    --red:        #ff6666;
+    --orange:     #ffaa44;
+    --warrior-c:  #e08060;
+    --mage-c:     #a080d8;
+    --archer-c:   #60b870;
+    --universal-c:#8888aa;
+    --rarity-common: #888899;
+    --rarity-rare:   #56b4e9;
+    --rarity-epic:   #ffd700;
+}
+
+body {
+    background: var(--bg-page);
+    color: var(--text);
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+}
+
+/* ── Panels ── */
+.panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+}
+
+/* ── HP bars ── */
+.hp-bar  { height: 14px; border-radius: 6px; background: #1e1e3a; overflow: hidden; }
+.hp-fill { height: 100%; border-radius: 6px; transition: width .4s ease; }
+.hp-text { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+
+/* ── Ghost / accent buttons ── */
+.btn-ghost {
+    background: transparent; border: 1px solid var(--border-2); color: var(--text-muted);
+    border-radius: 6px; padding: 0.3rem 0.8rem; font-size: 0.82rem; text-decoration: none;
+    transition: border-color .15s, color .15s; display: inline-block;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent-hi); }
+
+.btn-rpg {
+    background: var(--accent); border: 1px solid var(--accent);
+    color: #fff; font-weight: 600; border-radius: 8px;
+    padding: .5rem 1.4rem; text-decoration: none; display: inline-block;
+    transition: background .15s;
+}
+.btn-rpg:hover { background: var(--accent-hi); border-color: var(--accent-hi); color: #fff; }
+
+/* ── Form controls ── */
+.form-control {
+    background: var(--bg-card); border: 1px solid var(--border-2);
+    color: #e0e0e0; border-radius: 8px;
+}
+.form-control:focus {
+    background: var(--bg-card); border-color: var(--accent);
+    color: #e0e0e0; box-shadow: 0 0 0 .2rem rgba(124,92,191,.25);
+}
+.form-control::placeholder { color: #505070; }
+
+/* ── Event badges ── */
+.btag {
+    font-size: 0.66rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;
+    display: inline-block; margin-left: 4px; vertical-align: middle;
+}
+.badge-crit { background:#3a1800; color:#ffaa44; border:1px solid #5a3000; }
+.badge-stun { background:#2a2a00; color:#ffdd55; border:1px solid #4a4a00; }
+.badge-heal { background:#0a2a0a; color:#66dd88; border:1px solid #1a4a1a; }
+.badge-def  { background:#1a1a2a; color:#9090b8; border:1px solid #2a2a3a; }
+.badge-adv  { background:#001a2a; color:#66aaee; border:1px solid #003050; }
+.badge-dis  { background:#1a0000; color:#ee6666; border:1px solid #300010; }
+
+/* ── Stun badge ── */
+.stun-badge {
+    font-size:.72rem; color:#ffdd55; background:#2a2a00;
+    border:1px solid #5a5a00; border-radius:4px;
+    padding:1px 6px; display:inline-block; margin-top:3px;
+}
+
+/* ── Loader overlay ── */
+.loader-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(5,5,20,.85); z-index: 9999;
+    flex-direction: column; align-items: center; justify-content: center;
+}
+.loader-spinner {
+    width:42px; height:42px;
+    border:4px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: rpg-spin .65s linear infinite;
+}
+@keyframes rpg-spin { to { transform: rotate(360deg); } }
+.loader-label { color: var(--text-muted); margin-top:12px; font-size:.82rem; }
+
+/* ── Slot machine overlay ── */
+.slot-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(5,5,20,.92); z-index: 10000;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 1rem;
+}
+.slot-title {
+    font-size: 1.1rem; font-weight: 700; color: var(--text-muted);
+    letter-spacing: .08em; text-transform: uppercase;
+}
+.slot-skill-name {
+    font-size: 1.4rem; font-weight: 700; color: var(--text);
+    margin-bottom: .25rem;
+}
+.slot-window {
+    width: 220px; height: 240px;
+    border: 2px solid var(--border-2); border-radius: 12px;
+    overflow: hidden; position: relative; background: var(--bg-deep);
+}
+.slot-window::before,
+.slot-window::after {
+    content: ''; position: absolute; left: 0; right: 0; height: 72px;
+    z-index: 2; pointer-events: none;
+}
+.slot-window::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--bg-deep) 20%, transparent);
+}
+.slot-window::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg-deep) 20%, transparent);
+}
+.slot-indicator {
+    position: absolute; left: 0; right: 0; top: 50%;
+    height: 80px; margin-top: -40px;
+    border-top: 2px solid rgba(255,255,255,.15);
+    border-bottom: 2px solid rgba(255,255,255,.15);
+    z-index: 1; pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.slot-strip { position: absolute; top: 0; left: 0; right: 0; will-change: transform; }
+.slot-block {
+    height: 80px; display: flex; align-items: center; justify-content: center;
+    font-size: .95rem; font-weight: 700; letter-spacing: .04em;
+}
+.slot-block.red   { background:#1a0404; color:#ff6666; }
+.slot-block.green { background:#041a04; color:#66dd88; }
+
+/* ── Roulette wheel overlay ── */
+.wheel-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(5,5,20,.92); z-index: 10000;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.2rem;
+}
+.wheel-title { font-size:1.1rem; font-weight:700; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; }
+.wheel-wrap  { position: relative; }
+.wheel-canvas { border-radius: 50%; display: block; }
+.wheel-pointer {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 20px solid var(--gold);
+    filter: drop-shadow(0 0 6px var(--gold));
+}
+.wheel-result {
+    font-size: 1.5rem; font-weight: 700; opacity: 0;
+    transition: opacity .4s;
+}
+
+/* ── Character portrait ── */
+.char-portrait {
+    width: 100%; max-width: 120px; height: 120px;
+    object-fit: contain; display: block; margin: 0 auto .5rem;
+    filter: drop-shadow(0 0 12px currentColor);
+}
+
+/* ── Sequential event animation ── */
+.ev-row {
+    opacity: 0;
+    transform: translateY(8px);
+}
+.ev-row.ev-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity .3s ease, transform .3s ease;
+}
