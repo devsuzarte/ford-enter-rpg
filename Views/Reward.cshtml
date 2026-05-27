@@ -15,29 +15,28 @@
         body { display:flex; justify-content:center; align-items:center; padding:2rem 1rem; }
 
         .page-title { color:#ffd700; font-size:1.6rem; font-weight:700; }
-        .page-sub   { color:#9090b8; font-size:.92rem; }
+        .page-sub   { color:#9a9070; font-size:.92rem; }
 
         .reward-card {
-            background:#14142a; border:2px solid #2c2c4a; border-radius:12px;
+            background:#15120e; border:2px solid #2e2820; border-radius:12px;
             padding:1.5rem 1rem; text-align:center; cursor:pointer;
             transition:border-color .2s, background .2s, transform .15s;
             height:100%;
         }
-        .reward-card:hover { border-color:#7c5cbf; background:#1a1a38; transform:translateY(-3px); }
+        .reward-card:hover { border-color:#a07830; background:#1e1a10; transform:translateY(-3px); }
         .reward-icon  { font-size:2.8rem; line-height:1; margin-bottom:.6rem; }
-        .reward-title { font-size:1rem; font-weight:700; color:#dcdcf0; margin-bottom:.3rem; }
-        .reward-desc  { font-size:.8rem; color:#7070a0; margin-bottom:.6rem; }
+        .reward-title { font-size:1rem; font-weight:700; color:#ddd8c8; margin-bottom:.3rem; }
+        .reward-desc  { font-size:.8rem; color:#70654a; margin-bottom:.6rem; }
         .reward-stat  { font-size:.9rem; font-weight:600; }
 
         .reward-btn { background:transparent; border:none; padding:0; width:100%; height:100%; display:block; }
-        .reward-btn:focus .reward-card { border-color:#7c5cbf; }
+        .reward-btn:focus .reward-card { border-color:#a07830; }
 
-        /* skill choice special styling */
         .skill-reward-card {
-            border-color: #3a2a60;
+            border-color: #3a2e10;
         }
         .skill-reward-card:hover {
-            border-color:#a080d8; background:#181428;
+            border-color:#c89838; background:#1c1808;
         }
 
         /* wheel legend */
@@ -52,8 +51,8 @@
     <div class="text-center mb-5">
         <div class="page-title mb-1">Vitoria!</div>
         <div class="page-sub">
-            Voce derrotou <strong style="color:#dcdcf0;">@battle?.EnemyName</strong>!<br />
-            Agora e <strong style="color:#dcdcf0;">Nivel @character?.Level</strong>. Escolha sua recompensa:
+            Voce derrotou <strong style="color:#ddd8c8;">@battle?.EnemyName</strong>!<br />
+            Agora e <strong style="color:#ddd8c8;">Nivel @character?.Level</strong>. Escolha sua recompensa:
         </div>
     </div>
 
@@ -94,6 +93,7 @@
         <div class="col-md-4">
             <form method="post" action="/Battle/@battle?.Id/Reward" class="h-100" id="skill-reward-form" data-no-loader>
                 <input type="hidden" name="choice" value="Skill" />
+                <input type="hidden" name="rarity" value="" />
                 <button type="submit" class="reward-btn h-100">
                     <div class="reward-card skill-reward-card">
                         <div class="reward-icon">✦</div>
@@ -101,7 +101,7 @@
                         <div class="reward-desc">
                             Recebe uma nova habilidade. Se tiver 4, a mais fraca sera substituida.
                         </div>
-                        <div class="reward-stat" style="color:#a080d8;">Girar a Roleta!</div>
+                        <div class="reward-stat" style="color:#c89838;">Girar a Roleta!</div>
                     </div>
                 </button>
             </form>
@@ -113,19 +113,19 @@
     <div class="d-flex justify-content-center mt-4">
         <div class="wheel-legend">
             <div class="wl-item">
-                <div class="wl-dot" style="background:#7a5e00;border:1px solid #ffd700;"></div>
+                <div class="wl-dot" style="background:#3a2a00;border:1px solid #ffd700;"></div>
                 <span style="color:#ffd700;">Epico</span>
-                <span style="color:#6060a0;font-size:.78rem;">— maior chance (4x)</span>
+                <span style="color:#70654a;font-size:.78rem;">— maior chance (4x)</span>
             </div>
             <div class="wl-item">
                 <div class="wl-dot" style="background:#0d3a5c;border:1px solid #56b4e9;"></div>
                 <span style="color:#56b4e9;">Raro</span>
-                <span style="color:#6060a0;font-size:.78rem;">— chance media (2x)</span>
+                <span style="color:#70654a;font-size:.78rem;">— chance media (2x)</span>
             </div>
             <div class="wl-item">
-                <div class="wl-dot" style="background:#252535;border:1px solid #888899;"></div>
-                <span style="color:#888899;">Comum</span>
-                <span style="color:#6060a0;font-size:.78rem;">— chance base (1x)</span>
+                <div class="wl-dot" style="background:#252520;border:1px solid #888877;"></div>
+                <span style="color:#888877;">Comum</span>
+                <span style="color:#70654a;font-size:.78rem;">— chance base (1x)</span>
             </div>
         </div>
     </div>

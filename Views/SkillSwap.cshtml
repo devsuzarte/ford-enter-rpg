@@ -22,11 +22,11 @@
     string RarityLabel(string r) => r switch
         { "Epic" => "Epico", "Rare" => "Raro", _ => "Comum" };
     string RarityColor(string r) => r switch
-        { "Epic" => "#ffd700", "Rare" => "#56b4e9", _ => "#888899" };
+        { "Epic" => "#ffd700", "Rare" => "#56b4e9", _ => "#888877" };
     string SkillClassLabel(string c) => c switch
         { "Warrior" => "Guerreiro", "Mage" => "Mago", "Archer" => "Arqueiro", _ => "Universal" };
     string SkillClassColor(string c) => c switch
-        { "Warrior" => "#e08060", "Mage" => "#a080d8", "Archer" => "#60b870", _ => "#8888aa" };
+        { "Warrior" => "#d4804a", "Mage" => "#4890c8", "Archer" => "#60b870", _ => "#8a8468" };
     string EffectLabel(string e, int v) => e switch
     {
         "Crit" => "50% Critico",
@@ -53,19 +53,19 @@
     <style>
         body { display:flex; justify-content:center; align-items:center; padding:2rem 1rem; }
 
-        .page-title { color:#c0a0ff; font-size:1.5rem; font-weight:700; }
-        .page-sub   { color:#8080a0; font-size:.88rem; }
+        .page-title { color:#d4a84b; font-size:1.5rem; font-weight:700; }
+        .page-sub   { color:#9a9070; font-size:.88rem; }
 
         /* ── Skill cards ── */
         .skill-card {
-            background:#14142a; border:2px solid #2c2c4a; border-radius:14px;
+            background:#15120e; border:2px solid #2e2820; border-radius:14px;
             padding:1.4rem 1.1rem; text-align:left; width:200px;
             opacity:0; transform:translateY(20px);
             transition:opacity .5s ease, transform .5s ease;
         }
         .skill-card.visible { opacity:1; transform:translateY(0); }
 
-        .skill-card.acquired { border-color:#7c5cbf; }
+        .skill-card.acquired { border-color:#a07830; }
         .skill-card.replaced { border-color:#4a2a2a; opacity:.6; transform:translateY(0); }
         .skill-card.replaced.visible { opacity:.65; }
 
@@ -75,14 +75,14 @@
 
         .skill-label  { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em;
                         margin-bottom:.5rem; font-weight:600; }
-        .skill-name   { font-size:.95rem; font-weight:700; color:#dcdcf0; margin-bottom:.25rem; }
+        .skill-name   { font-size:.95rem; font-weight:700; color:#ddd8c8; margin-bottom:.25rem; }
         .skill-rarity { font-size:.72rem; margin-bottom:.4rem; }
-        .skill-desc   { font-size:.74rem; color:#6868a0; margin-bottom:.55rem; }
-        .skill-stats  { font-size:.78rem; color:#9090b8; }
-        .skill-stats strong { color:#e0e0e0; }
+        .skill-desc   { font-size:.74rem; color:#70654a; margin-bottom:.55rem; }
+        .skill-stats  { font-size:.78rem; color:#9a9070; }
+        .skill-stats strong { color:#ddd8c8; }
 
         .arrow-col {
-            display:flex; align-items:center; font-size:2.2rem; color:#7c5cbf;
+            display:flex; align-items:center; font-size:2.2rem; color:#c89838;
             opacity:0; transform:scale(.7);
             transition:opacity .4s ease .3s, transform .4s ease .3s;
         }

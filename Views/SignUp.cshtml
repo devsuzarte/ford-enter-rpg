@@ -10,45 +10,45 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <style>
         body {
-            background-color: #0d0d1a;
-            color: #e0e0e0;
+            background-color: #0d0b09;
+            color: #ddd8c8;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .card {
-            background-color: #1a1a2e;
-            border: 1px solid #2a2a4a;
+            background-color: #15120e;
+            border: 1px solid #2e2820;
             border-radius: 12px;
             width: 100%;
             max-width: 420px;
             padding: 2rem;
         }
         .card-title {
-            color: #c0a0ff;
+            color: #d4a84b;
             font-size: 1.6rem;
             font-weight: bold;
             text-align: center;
             margin-bottom: 1.5rem;
         }
-        .form-label { color: #b0b0cc; font-size: 0.9rem; }
+        .form-label { color: #9a9070; font-size: 0.9rem; }
         .form-control {
-            background-color: #12122a;
-            border: 1px solid #3a3a5a;
-            color: #e0e0e0;
+            background-color: #0d0b09;
+            border: 1px solid #3c3426;
+            color: #ddd8c8;
             border-radius: 8px;
         }
         .form-control:focus {
-            background-color: #12122a;
-            border-color: #7c5cbf;
-            color: #e0e0e0;
-            box-shadow: 0 0 0 0.2rem rgba(124, 92, 191, 0.25);
+            background-color: #0d0b09;
+            border-color: #a07830;
+            color: #ddd8c8;
+            box-shadow: 0 0 0 0.2rem rgba(160, 120, 48, 0.25);
         }
-        .form-control::placeholder { color: #606080; }
+        .form-control::placeholder { color: #505040; }
         .btn-cadastrar {
-            background-color: #7c5cbf;
-            border-color: #7c5cbf;
+            background-color: #a07830;
+            border-color: #c89838;
             color: #fff;
             width: 100%;
             padding: 0.65rem;
@@ -56,27 +56,26 @@
             border-radius: 8px;
         }
         .btn-cadastrar:hover {
-            background-color: #5c3c9f;
-            border-color: #5c3c9f;
+            background-color: #c89838;
+            border-color: #c89838;
             color: #fff;
         }
-        .link-login { color: #9a7adf; text-decoration: none; }
-        .link-login:hover { color: #c0a0ff; text-decoration: underline; }
+        .link-login { color: #c89838; text-decoration: none; }
+        .link-login:hover { color: #d4a84b; text-decoration: underline; }
         .error-msg {
-            background-color: #3a1a1a;
-            border: 1px solid #7a3a3a;
+            background-color: #2a0a0a;
+            border: 1px solid #6a2a2a;
             border-radius: 8px;
             padding: 0.6rem 0.9rem;
             color: #ff9a9a;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            font-size: .88rem;
         }
     </style>
 </head>
 <body>
 <div class="card shadow-lg">
 
-    <div class="card-title">⚔ Criar Conta</div>
+    <div class="card-title">&#9876; Criar Conta</div>
 
     @if (!ViewData.ModelState.IsValid)
     {
@@ -105,15 +104,15 @@
         <button type="submit" class="btn btn-cadastrar">Criar Conta</button>
     </form>
 
-    <div class="text-center mt-3" style="font-size:0.9rem; color:#808090;">
+    <div class="text-center mt-3" style="font-size:0.9rem; color:#70654a;">
         Ja tem conta?
         <a href="/SignIn" class="link-login">Entrar</a>
     </div>
 
 </div>
-<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,5,20,.8);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
-    <div style="width:42px;height:42px;border:4px solid #2c2c4a;border-top-color:#7c5cbf;border-radius:50%;animation:_sp .65s linear infinite;"></div>
-    <div style="color:#9090b8;margin-top:12px;font-size:.82rem;">Carregando...</div>
+<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,4,2,.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:42px;height:42px;border:4px solid #2e2820;border-top-color:#a07830;border-radius:50%;animation:_sp .65s linear infinite;"></div>
+    <div style="color:#9a9070;margin-top:12px;font-size:.82rem;">Carregando...</div>
 </div>
 <style>@@keyframes _sp{to{transform:rotate(360deg)}}</style>
 <script>

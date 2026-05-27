@@ -10,11 +10,11 @@
     string RarityLabel(string r) => r switch
         { "Epic" => "Epico", "Rare" => "Raro", _ => "Comum" };
     string RarityColor(string r) => r switch
-        { "Epic" => "#ffd700", "Rare" => "#56b4e9", _ => "#888899" };
+        { "Epic" => "#ffd700", "Rare" => "#56b4e9", _ => "#888877" };
     string SkillClassLabel(string c) => c switch
         { "Warrior" => "Guerreiro", "Mage" => "Mago", "Archer" => "Arqueiro", _ => "Universal" };
     string SkillClassColor(string c) => c switch
-        { "Warrior" => "#e08060", "Mage" => "#a080d8", "Archer" => "#60b870", _ => "#8888aa" };
+        { "Warrior" => "#d4804a", "Mage" => "#4890c8", "Archer" => "#60b870", _ => "#8a8468" };
     string EffectLabel(string e, int v) => e switch
     {
         "Crit" => "50% Critico",
@@ -31,48 +31,48 @@
     <title>@Model.Name — FordEnterRPG</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <style>
-        body { background: #0d0d1a; color: #dcdcf0; font-family: 'Segoe UI', sans-serif;
+        body { background: #0d0b09; color: #ddd8c8; font-family: 'Segoe UI', sans-serif;
                min-height: 100vh; display: flex; justify-content: center;
                align-items: flex-start; padding: 1.5rem 1rem; }
 
-        h1 { color: #c0a0ff; font-size: 1.5rem; margin: 0; }
-        h2 { color: #a090d0; font-size: 1.1rem; margin-bottom: .8rem; text-transform: uppercase;
+        h1 { color: #d4a84b; font-size: 1.5rem; margin: 0; }
+        h2 { color: #c89838; font-size: 1.1rem; margin-bottom: .8rem; text-transform: uppercase;
              letter-spacing: .06em; font-weight: 600; }
 
-        .panel { background: #14142a; border: 1px solid #2c2c4a; border-radius: 10px; padding: 1rem 1.2rem; }
+        .panel { background: #15120e; border: 1px solid #2e2820; border-radius: 10px; padding: 1rem 1.2rem; }
 
         .stat-box {
-            background: #0d0d1e;
-            border: 1px solid #2a2a42;
+            background: #0d0b09;
+            border: 1px solid #2a2010;
             border-radius: 8px;
             padding: .8rem .5rem;
             text-align: center;
         }
         .stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1; }
-        .stat-label { font-size: 0.72rem; color: #6060a0; margin-top: .25rem; }
+        .stat-label { font-size: 0.72rem; color: #70654a; margin-top: .25rem; }
 
         .class-badge {
             display: inline-block;
-            background: #1e1640;
-            border: 1px solid #5c3c9f;
+            background: #1c1408;
+            border: 1px solid #7a5818;
             border-radius: 20px;
             padding: .25rem .8rem;
             font-size: .85rem;
-            color: #c0a0ff;
+            color: #d4a84b;
             font-weight: 600;
         }
 
         .skill-card {
-            background: #0d0d1e;
-            border: 1px solid #2a2a42;
+            background: #0d0b09;
+            border: 1px solid #2a2010;
             border-radius: 8px;
             padding: .8rem 1rem;
         }
-        .skill-name  { font-size: .93rem; font-weight: 600; color: #dcdcf0; }
+        .skill-name  { font-size: .93rem; font-weight: 600; color: #ddd8c8; }
         .skill-rarity{ font-size: .75rem; }
-        .skill-desc  { font-size: .78rem; color: #7070a0; margin-top: .15rem; }
-        .skill-stats { font-size: .78rem; color: #9090b8; margin-top: .4rem; }
-        .skill-stats strong { color: #e0e0e0; }
+        .skill-desc  { font-size: .78rem; color: #70654a; margin-top: .15rem; }
+        .skill-stats { font-size: .78rem; color: #9a9070; margin-top: .4rem; }
+        .skill-stats strong { color: #ddd8c8; }
 
         .btn-play {
             background: #8b0000; border-color: #8b0000;
@@ -81,16 +81,16 @@
         }
         .btn-play:hover { background: #aa0000; border-color: #aa0000; color: #fff; }
         .btn-continue {
-            background: #7c5c00; border-color: #7c5c00;
+            background: #a07830; border-color: #c89838;
             color: #fff; font-size: 1rem; font-weight: 600;
             padding: .7rem 1.2rem; border-radius: 8px; width: 100%;
         }
-        .btn-continue:hover { background: #9c7c00; border-color: #9c7c00; color: #fff; }
+        .btn-continue:hover { background: #c89838; border-color: #c89838; color: #fff; }
         .btn-back {
-            font-size: .82rem; color: #7070a0; text-decoration: none;
-            border: 1px solid #2a2a42; border-radius: 6px; padding: .3rem .7rem;
+            font-size: .82rem; color: #9a9070; text-decoration: none;
+            border: 1px solid #2e2820; border-radius: 6px; padding: .3rem .7rem;
         }
-        .btn-back:hover { color: #c0a0ff; border-color: #5c3c9f; }
+        .btn-back:hover { color: #d4a84b; border-color: #7a5818; }
 
         .record-win  { color: #66dd88; font-weight: 700; font-size: 1.4rem; }
         .record-lose { color: #dd6666; font-weight: 700; font-size: 1.4rem; }
@@ -114,7 +114,7 @@
             <h1>@ClassIcon(Model.Class) @Model.Name</h1>
             <div class="mt-1">
                 <span class="class-badge">@ClassLabel(Model.Class)</span>
-                <span style="font-size:.82rem; color:#6060a0; margin-left:.5rem;">Nivel @Model.Level</span>
+                <span style="font-size:.82rem; color:#70654a; margin-left:.5rem;">Nivel @Model.Level</span>
             </div>
         </div>
         <a href="/Profile" class="btn-back">Perfil</a>
@@ -123,7 +123,7 @@
     <div class="row g-2 mb-4">
         <div class="col-4 col-sm">
             <div class="stat-box">
-                <div class="stat-value" style="color:#c0a0ff;">@Model.Level</div>
+                <div class="stat-value" style="color:#d4a84b;">@Model.Level</div>
                 <div class="stat-label">Nivel</div>
             </div>
         </div>
@@ -157,7 +157,7 @@
         <h2>Habilidades</h2>
         @if (!Model.CharacterSkills.Any())
         {
-            <div style="color:#505070; font-size:.88rem;">Nenhuma habilidade ainda.</div>
+            <div style="color:#70654a; font-size:.88rem;">Nenhuma habilidade ainda.</div>
         }
         else
         {
@@ -190,8 +190,7 @@
             <div class="dead-title">&#x2620; Personagem Morto</div>
             <div class="dead-sub">Este personagem foi derrotado em batalha e nao pode mais lutar.</div>
             <form method="post" action="/Character/Reset" class="mt-3">
-                <button type="submit" class="btn btn-sm"
-                        style="background:#3a1a1a;border:1px solid #7a3a3a;color:#dd6666;border-radius:6px;padding:.35rem .9rem;">
+                <button type="submit" class="btn btn-sm btn-danger">
                     Recomecar com novo personagem
                 </button>
             </form>
@@ -211,9 +210,9 @@
     }
 
 </div>
-<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,5,20,.8);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
-    <div style="width:42px;height:42px;border:4px solid #2c2c4a;border-top-color:#7c5cbf;border-radius:50%;animation:_sp .65s linear infinite;"></div>
-    <div style="color:#9090b8;margin-top:12px;font-size:.82rem;">Carregando...</div>
+<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,4,2,.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:42px;height:42px;border:4px solid #2e2820;border-top-color:#a07830;border-radius:50%;animation:_sp .65s linear infinite;"></div>
+    <div style="color:#9a9070;margin-top:12px;font-size:.82rem;">Carregando...</div>
 </div>
 <style>@@keyframes _sp{to{transform:rotate(360deg)}}</style>
 <script>
