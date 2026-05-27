@@ -37,22 +37,28 @@
         var missChance = parseFloat(form.dataset.missChance || '0') / 100;
         var isHit = Math.random() >= missChance;
 
+        /* store isHit on the form so the server uses the same result */
+        var isHitInput = form.querySelector('input[name="isHit"]');
+        if (isHitInput) isHitInput.value = isHit ? 'true' : 'false';
+
         if (slotLabel)  slotLabel.textContent = skillName || '';
         if (slotResult) { slotResult.style.opacity = '0'; slotResult.textContent = ''; }
 
         buildStrip(missChance, isHit);
         slotOverlay.style.display = 'flex';
 
-        /* centre block = index (COUNT-2); scroll so it sits in middle of 3-block window */
         var finalY = (COUNT - 2 - 1) * BLOCK_H;
 
         requestAnimationFrame(function () {
             requestAnimationFrame(function () {
-                slotStrip.style.transition = 'transform 2.6s cubic-bezier(0.04, 0.82, 0.18, 1)';
+                /* randomise the easing feel slightly */
+                var dur = (2200 + Math.random() * 800).toFixed(0);
+                slotStrip.style.transition = 'transform ' + dur + 'ms cubic-bezier(0.04, 0.82, 0.18, 1)';
                 slotStrip.style.transform  = 'translateY(-' + finalY + 'px)';
             });
         });
 
+        var settleDur = 2700 + Math.random() * 300;
         setTimeout(function () {
             var centerBlock = slotStrip.children[COUNT - 2];
             centerBlock.style.boxShadow = isHit
@@ -73,7 +79,7 @@
                 if (loader) loader.style.display = 'flex';
                 if (pendingForm) { pendingForm.submit(); pendingForm = null; }
             }, 900);
-        }, 2700);
+        }, settleDur);
     }
 
     document.querySelectorAll('.skill-form').forEach(function (form) {
@@ -93,12 +99,11 @@
     var wheelResult  = document.getElementById('wheel-result');
     if (!wheelOverlay || !canvas) return;
 
-    /* segments ordered so the arc layout matches the visual pointer at the top.
-       Drawing starts at (rotation - π/2), i.e. the 12 o'clock position when rotation=0. */
+    /* Weights: Epic 4x, Rare 2x, Common 1x */
     var SEGMENTS = [
-        { label: 'Epico',  color: '#7a5e00', rim: '#ffd700', weight: 4, textColor: '#ffd700' },
-        { label: 'Raro',   color: '#0d3a5c', rim: '#56b4e9', weight: 2, textColor: '#56b4e9' },
-        { label: 'Comum',  color: '#252535', rim: '#888899', weight: 1, textColor: '#aaaacc' }
+        { label: 'Epico',  rarity: 'Epic',   color: '#3a2a00', rim: '#ffd700', weight: 4, textColor: '#ffd700' },
+        { label: 'Raro',   rarity: 'Rare',   color: '#0d3a5c', rim: '#56b4e9', weight: 2, textColor: '#56b4e9' },
+        { label: 'Comum',  rarity: 'Common', color: '#252535', rim: '#888899', weight: 1, textColor: '#aaaacc' }
     ];
     var TOTAL_W = SEGMENTS.reduce(function (s, x) { return s + x.weight; }, 0);
 
@@ -112,7 +117,6 @@
 
     function drawWheel(rotation) {
         ctx.clearRect(0, 0, W, H);
-        /* segments start from rotation - π/2 so that segment[0] begins at the top when rotation=0 */
         var start = rotation - Math.PI / 2;
 
         SEGMENTS.forEach(function (seg) {
@@ -136,9 +140,15 @@
             var mid = start + sweep / 2;
             var tx  = CX + Math.cos(mid) * R * 0.62;
             var ty  = CY + Math.sin(mid) * R * 0.62;
+
             ctx.save();
             ctx.translate(tx, ty);
-            ctx.rotate(mid + Math.PI / 2);
+
+            /* fix upside-down text: flip labels in the lower half of the canvas */
+            var textAngle = mid + Math.PI / 2;
+            if (Math.sin(mid) > 0) textAngle += Math.PI;
+            ctx.rotate(textAngle);
+
             ctx.fillStyle = seg.textColor;
             ctx.font = 'bold 13px Segoe UI';
             ctx.textAlign = 'center';
@@ -176,9 +186,11 @@
         if (wheelResult) { wheelResult.style.opacity = '0'; wheelResult.textContent = ''; }
         wheelOverlay.style.display = 'flex';
 
-        var totalRotation = Math.PI * 2 * (9 + Math.random() * 6);
-        var duration = 4200;
-        var startTime = null;
+        /* vary both rotations and duration for randomness */
+        var extraSpins   = 7 + Math.random() * 9;
+        var totalRotation = Math.PI * 2 * extraSpins;
+        var duration      = 3400 + Math.random() * 2000;
+        var startTime     = null;
 
         function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
 
@@ -199,11 +211,8 @@
     }
 
     function showResult(finalAngle) {
-        /* The wheel draws segment[0] starting at (rotation - π/2).
-           The pointer is at the top = canvas angle -π/2.
-           Angle of pointer within the segment layout:
-             offset = (-π/2) - (finalAngle - π/2) = -finalAngle
-           Normalized to [0, 2π): */
+        /* pointer is at the top (canvas angle −π/2).
+           Normalize to wheel-layout frame [0, 2π): */
         var hit = ((-finalAngle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
 
         var found = SEGMENTS[SEGMENTS.length - 1];
@@ -211,6 +220,12 @@
         for (var i = 0; i < SEGMENTS.length; i++) {
             acc += (SEGMENTS[i].weight / TOTAL_W) * Math.PI * 2;
             if (hit < acc) { found = SEGMENTS[i]; break; }
+        }
+
+        /* pass the rarity to the server via the hidden input */
+        if (pendingForm) {
+            var rarityInput = pendingForm.querySelector('input[name="rarity"]');
+            if (rarityInput) rarityInput.value = found.rarity;
         }
 
         if (wheelResult) {

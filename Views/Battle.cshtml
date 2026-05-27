@@ -26,7 +26,7 @@
     string SkillClassLabel(string c) => c switch
         { "Warrior" => "Guerreiro", "Mage" => "Mago", "Archer" => "Arqueiro", _ => "Universal" };
     string SkillClassColor(string c) => c switch
-        { "Warrior" => "#e08060", "Mage" => "#a080d8", "Archer" => "#60b870", _ => "#8888aa" };
+        { "Warrior" => "#d4804a", "Mage" => "#4890c8", "Archer" => "#60b870", _ => "#8a8468" };
     string EffectLabel(string e, int v) => e switch
     {
         "Crit" => "50% Critico",
@@ -134,6 +134,11 @@
         tag.StartsWith("CRITICO")  ? "badge-crit" :
         tag.StartsWith("ATORDOOU") ? "badge-stun" :
         tag.StartsWith("CURA")     ? "badge-heal" : "badge-def";
+
+    /* data passed to JS */
+    int    esSlotTurn  = ViewBag.EnemySlotTurn  != null ? (int)ViewBag.EnemySlotTurn  : 0;
+    bool   esSlotHit   = ViewBag.EnemySlotHit   != null ? (bool)ViewBag.EnemySlotHit  : false;
+    string esSlotSkill = ViewBag.EnemySlotSkill != null ? ((string)ViewBag.EnemySlotSkill).Replace("'", "\\'") : "";
 }
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -146,64 +151,63 @@
     <style>
         body { display:flex; justify-content:center; align-items:flex-start; padding:1.5rem 1rem; }
 
-        .combatant-name { font-size:1.05rem; font-weight:700; color:#dcdcf0; }
-        .combatant-sub  { font-size:0.80rem; color:#8888a8; }
+        .combatant-name { font-size:1.05rem; font-weight:700; color:#ddd8c8; }
+        .combatant-sub  { font-size:0.80rem; color:#9a9070; }
 
         /* ── Carousel ── */
-        .carousel-wrap { background:#14142a; border:1px solid #2c2c4a; border-radius:10px; overflow:hidden; margin-bottom:1rem; }
+        .carousel-wrap { background:#15120e; border:1px solid #2e2820; border-radius:10px; overflow:hidden; margin-bottom:1rem; }
         .carousel-nav  { display:flex; align-items:center; justify-content:space-between;
-                         padding:.45rem .8rem; background:#0d0d1e; border-bottom:1px solid #2c2c4a; }
-        .nav-btn { background:transparent; border:1px solid #3a3a5a; color:#9090b0;
+                         padding:.45rem .8rem; background:#0d0b09; border-bottom:1px solid #2e2820; }
+        .nav-btn { background:transparent; border:1px solid #3c3426; color:#9a9070;
                    border-radius:6px; padding:.15rem .65rem; font-size:1rem;
                    cursor:pointer; line-height:1.4; transition:border-color .15s,color .15s; }
-        .nav-btn:hover:not(:disabled) { border-color:#7c5cbf; color:#c0a0ff; }
+        .nav-btn:hover:not(:disabled) { border-color:#a07830; color:#d4a84b; }
         .nav-btn:disabled { opacity:.3; cursor:not-allowed; }
-        .turn-indicator { font-size:.76rem; color:#6060a0; letter-spacing:.04em; }
+        .turn-indicator { font-size:.76rem; color:#70654a; letter-spacing:.04em; }
 
         .turn-slide { display:none; }
         .turn-body  { padding:.7rem .8rem; display:flex; flex-direction:column; gap:.45rem; min-height:90px; }
 
-        /* ev-row base — no opacity override; theme.css handles animation */
         .ev-row {
-            background:#0a0a18; border-radius:8px;
+            background:#0a0806; border-radius:8px;
             padding:.55rem .75rem; border-left:3px solid transparent;
         }
-        .ev-row.is-player { border-left-color:#7c5cbf; }
+        .ev-row.is-player { border-left-color:#a07830; }
         .ev-row.is-enemy  { border-left-color:#cc4444; }
         .ev-row.is-stun   { border-left-color:#aaaa00; background:#131300; }
         .ev-row.is-win    { border-left-color:#22cc66; background:#041008; }
         .ev-row.is-lose   { border-left-color:#cc2222; background:#100404; }
-        .ev-row.is-level  { border-left-color:#5555cc; background:#040418; }
+        .ev-row.is-level  { border-left-color:#c89838; background:#100d04; }
 
         .ev-actor         { font-size:.74rem; font-weight:600; margin-bottom:.18rem; }
-        .ev-actor.player  { color:#c0a0ff; }
+        .ev-actor.player  { color:#d4a84b; }
         .ev-actor.enemy   { color:#ff8888; }
-        .ev-skill         { font-size:.92rem; font-weight:600; color:#dcdcf0; }
+        .ev-skill         { font-size:.92rem; font-weight:600; color:#ddd8c8; }
         .ev-damage        { font-size:1.05rem; font-weight:700; color:#ffaa44; }
-        .ev-unit          { font-size:.72rem; color:#8888a8; margin-left:2px; }
+        .ev-unit          { font-size:.72rem; color:#9a9070; margin-left:2px; }
 
-        .ev-row.is-miss   { border-left-color:#888888; background:#111118; }
-        .ev-msg-miss  { font-size:.83rem; color:#888888; font-style:italic; }
+        .ev-row.is-miss   { border-left-color:#666655; background:#111108; }
+        .ev-msg-miss  { font-size:.83rem; color:#888877; font-style:italic; }
         .ev-msg-stun  { font-size:.83rem; color:#cccc44; }
         .ev-msg-win   { font-size:.86rem; color:#44cc88; font-weight:600; }
         .ev-msg-lose  { font-size:.86rem; color:#cc4444; font-weight:600; }
-        .ev-msg-level { font-size:.80rem; color:#8888cc; }
+        .ev-msg-level { font-size:.80rem; color:#c89838; }
 
-        .miss-pct { font-size:.7rem; color:#888888; margin-left:4px; }
+        .miss-pct { font-size:.7rem; color:#888877; margin-left:4px; }
 
         /* ── Skill buttons ── */
         .skill-btn {
-            display:block; width:100%; background:#14142a;
-            border:1px solid #2c2c4a; border-radius:8px;
+            display:block; width:100%; background:#15120e;
+            border:1px solid #2e2820; border-radius:8px;
             padding:.65rem .85rem; text-align:left;
-            color:#dcdcf0; transition:border-color .15s,background .15s;
+            color:#ddd8c8; transition:border-color .15s,background .15s;
             cursor: pointer;
         }
-        .skill-btn:hover:not(:disabled) { border-color:#7c5cbf; background:#1e1e38; color:#fff; }
+        .skill-btn:hover:not(:disabled) { border-color:#a07830; background:#1e1a10; color:#fff; }
         .skill-btn:disabled { opacity:.4; cursor:not-allowed; }
         .skill-name  { font-weight:600; font-size:.93rem; }
-        .skill-stats { font-size:.78rem; color:#8888a8; margin-top:2px; }
-        .skills-label { font-size:.76rem; color:#6060a0; text-transform:uppercase;
+        .skill-stats { font-size:.78rem; color:#9a9070; margin-top:2px; }
+        .skills-label { font-size:.76rem; color:#70654a; text-transform:uppercase;
                         letter-spacing:.08em; margin-bottom:8px; }
 
         /* ── End banners ── */
@@ -213,10 +217,25 @@
         /* ── Combatant panel portrait ── */
         .combatant-portrait {
             width:52px; height:52px; object-fit:contain;
-            border-radius:8px; background:#0d0d1a;
+            border-radius:8px; background:#0d0b09;
             padding:2px; flex-shrink:0;
         }
         .enemy-portrait-wrap { filter: hue-rotate(140deg) saturate(0.6); }
+
+        /* ── Dice overlay ── */
+        .dice-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(5,4,2,.94); z-index:10100;
+            flex-direction:column; align-items:center; justify-content:center;
+            gap:1rem;
+        }
+        .dice-title    { font-size:1.2rem; font-weight:700; color:#d4a84b; letter-spacing:.06em; text-transform:uppercase; }
+        .dice-subtitle { font-size:.82rem; color:#9a9070; }
+        .dice-canvas-wrap { width:280px; height:280px; }
+        .dice-vs-row   { display:none; align-items:center; gap:1.4rem; font-size:2rem; font-weight:700; }
+        .dice-score    { min-width:2rem; text-align:center; }
+        .dice-vs-label { color:#70654a; font-size:1rem; }
+        .dice-result-msg { font-size:1.1rem; font-weight:700; display:none; }
     </style>
 </head>
 <body>
@@ -224,8 +243,8 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <span style="font-size:1.1rem;font-weight:700;color:#c0a0ff;">Batalha #@battle.RunSequence</span>
-            <span style="font-size:0.82rem;color:#6060a0;margin-left:8px;">Turno @battle.TurnCount</span>
+            <span style="font-size:1.1rem;font-weight:700;color:#d4a84b;">Batalha #@battle.RunSequence</span>
+            <span style="font-size:0.82rem;color:#70654a;margin-left:8px;">Turno @battle.TurnCount</span>
         </div>
         <a href="/Character" class="btn-ghost">Personagem</a>
     </div>
@@ -301,7 +320,7 @@
                                 }
                                 else if (ev.Type == "miss")
                                 {
-                                    <div class="ev-row is-miss @(ev.IsPlayer ? "is-player" : "is-enemy")" style="border-left-color:#555555;">
+                                    <div class="ev-row is-miss @(ev.IsPlayer ? "is-player" : "is-enemy")" style="border-left-color:#555544;">
                                         <div class="ev-actor @(ev.IsPlayer ? "player" : "enemy")">
                                             @(ev.IsPlayer ? "&#9876;" : "&#9760;") @ev.Actor &mdash; <span class="ev-skill">@ev.Skill</span>
                                         </div>
@@ -341,8 +360,8 @@
     }
     else
     {
-        <div class="panel mb-3" style="text-align:center;color:#6060a0;font-size:.88rem;">
-            A batalha comecou. Escolha uma habilidade para atacar.
+        <div class="panel mb-3" style="text-align:center;color:#70654a;font-size:.88rem;">
+            A batalha comecou. Role o dado de iniciativa e escolha sua habilidade.
         </div>
     }
 
@@ -398,6 +417,7 @@
                 <div class="col-12 col-sm-6">
                     <form method="post" action="/Battle/@battle.Id/Turn" class="skill-form" data-no-loader data-miss-chance="@MissChancePct(s)">
                         <input type="hidden" name="skillId" value="@s.Id" />
+                        <input type="hidden" name="isHit" value="" />
                         <button type="submit" class="skill-btn">
                             <div class="d-flex justify-content-between align-items-baseline">
                                 <span class="skill-name">@s.Name</span>
@@ -427,7 +447,7 @@
 
 </div>
 
-<!-- Slot machine overlay -->
+<!-- Player slot machine overlay -->
 <div id="slot-overlay" class="slot-overlay">
     <div class="slot-title">Executando habilidade</div>
     <div id="slot-skill-name" class="slot-skill-name"></div>
@@ -438,12 +458,58 @@
     <div id="slot-result" style="font-size:1.1rem;font-weight:700;min-height:1.5rem;opacity:0;transition:opacity .3s;letter-spacing:.04em;"></div>
 </div>
 
+<!-- Enemy slot machine overlay -->
+<div id="enemy-slot-overlay" class="slot-overlay" style="background:rgba(20,4,4,.95);">
+    <div class="slot-title" style="color:#ff9966;">Ataque Inimigo</div>
+    <div id="enemy-slot-name" class="slot-skill-name" style="color:#ffaa88;"></div>
+    <div class="slot-window" style="border-color:#3a1a1a;">
+        <div class="slot-indicator" style="border-color:rgba(200,60,60,.25);"></div>
+        <div id="enemy-slot-strip" class="slot-strip"></div>
+    </div>
+    <div id="enemy-slot-result" style="font-size:1.1rem;font-weight:700;min-height:1.5rem;opacity:0;transition:opacity .3s;letter-spacing:.04em;"></div>
+</div>
+
+<!-- Dice initiative overlay -->
+<div id="dice-overlay" class="dice-overlay">
+    <div class="dice-title">&#9856; Iniciativa</div>
+    <div class="dice-subtitle">Role o dado — quem tirar mais alto ataca primeiro</div>
+    <div class="dice-canvas-wrap" id="dice-canvas-wrap"></div>
+    <div class="dice-vs-row" id="dice-vs-row">
+        <div>
+            <div style="font-size:.7rem;color:#9a9070;text-align:center;margin-bottom:.2rem;">Voce</div>
+            <div class="dice-score" id="dice-player-score" style="color:#d4a84b;">?</div>
+        </div>
+        <div class="dice-vs-label">vs</div>
+        <div>
+            <div style="font-size:.7rem;color:#9a9070;text-align:center;margin-bottom:.2rem;">Inimigo</div>
+            <div class="dice-score" id="dice-enemy-score" style="color:#ff8888;">?</div>
+        </div>
+    </div>
+    <div class="dice-result-msg" id="dice-result-msg"></div>
+    <button id="dice-roll-btn" class="btn-rpg" style="margin-top:.5rem;">Rolar!</button>
+    <button id="dice-continue-btn" class="btn-rpg" style="display:none;margin-top:.5rem;">Batalhar!</button>
+</div>
+
 <!-- Generic loader -->
 <div id="loader" class="loader-overlay">
     <div class="loader-spinner"></div>
     <div class="loader-label">Carregando...</div>
 </div>
 
+<!-- battle state for JS -->
+<script>
+var battleTurnCount = @battle.TurnCount;
+var battleId        = @battle.Id;
+var battleStatus    = '@battle.Status';
+var enemyName       = '@battle.EnemyName.Replace("'", "\\'")';
+var enemySlotTurn   = @esSlotTurn;
+var enemySlotHit    = @(esSlotHit ? "true" : "false");
+var enemySlotSkill  = '@esSlotSkill';
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
 <script src="/js/battle.js"></script>
 <script src="/js/roulette.js"></script>
 <script src="/js/loader.js"></script>
