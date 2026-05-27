@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FordEnterRPG — Apresentação</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Lato:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <canvas id="particles"></canvas>
+    <div class="vignette"></div>
+
+    <div class="curtain curtain--top"></div>
+    <div class="curtain curtain--bot"></div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="slides-container">
+
+        <!-- 01 — Título -->
+        <section class="slide slide--title" data-index="0">
+            <div class="slide__inner">
+                <div class="title-rune" data-animate>✦ &nbsp; ⚔ &nbsp; ✦</div>
+                <h1 class="title-main js-split">Ford Enter RPG</h1>
+                <p class="title-sub" data-animate>RPG de Batalha por Turnos</p>
+                <div class="title-hr" data-animate></div>
+                <p class="title-hint" data-animate>
+                    <kbd>←</kbd> <kbd>→</kbd> para navegar &nbsp;·&nbsp; <kbd>Space</kbd> para avançar
+                </p>
+            </div>
+        </section>
+
+        <!-- 02 — O Projeto -->
+        <section class="slide slide--dark" data-index="1">
+            <div class="slide__inner">
+                <h2 class="slide__title" data-animate>O Projeto</h2>
+                <ul class="slide__list">
+                    <li data-animate>🌐 RPG completo rodando no <strong>navegador</strong></li>
+                    <li data-animate>⚔️ Batalhas por turnos <strong>estratégicas</strong></li>
+                    <li data-animate>📈 Progressão real de personagem e habilidades</li>
+                    <li data-animate>💀 Morte permanente — cada escolha <strong>importa</strong></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 03 — Inspirações -->
+        <section class="slide slide--purple" data-index="2">
+            <div class="slide__inner">
+                <h2 class="slide__title" data-animate>Inspirações</h2>
+                <ul class="slide__list">
+                    <li data-animate>🎮 Fortemente inspirado em jogos <strong>DLE</strong></li>
+                    <li data-animate>🎲 Mecânicas <strong>roguelite</strong> modernas</li>
+                    <li data-animate>🍀 Sorte como elemento <strong>positivo</strong> e central</li>
+                    <li data-animate>✨ Cada partida conta uma <strong>história única</strong></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 04 — As Classes -->
+        <section class="slide slide--dark" data-index="3">
+            <div class="slide__inner">
+                <h2 class="slide__title" data-animate>As Classes</h2>
+                <div class="class-grid">
+                    <div class="class-card class-card--warrior" data-animate>
+                        <div class="class-icon">⚔️</div>
+                        <div class="class-name">Warrior</div>
+                        <div class="class-stats">❤️ 25 HP &nbsp;·&nbsp; ⚔ 7 DMG</div>
+                        <div class="class-desc">Resistência e poder bruto</div>
+                    </div>
+                    <div class="class-card class-card--mage" data-animate>
+                        <div class="class-icon">🔮</div>
+                        <div class="class-name">Mage</div>
+                        <div class="class-stats">❤️ 18 HP &nbsp;·&nbsp; ⚔ 10 DMG</div>
+                        <div class="class-desc">Máximo dano, vida frágil</div>
+                    </div>
+                    <div class="class-card class-card--archer" data-animate>
+                        <div class="class-icon">🏹</div>
+                        <div class="class-name">Archer</div>
+                        <div class="class-stats">❤️ 20 HP &nbsp;·&nbsp; ⚔ 8 DMG</div>
+                        <div class="class-desc">Equilíbrio e precisão</div>
+                    </div>
+                </div>
+                <p class="class-triangle" data-animate>
+                    ⚔ Warrior &nbsp;▶&nbsp; 🔮 Mage &nbsp;▶&nbsp; 🏹 Archer &nbsp;▶&nbsp; ⚔ Warrior
+                </p>
+            </div>
+        </section>
+
+        <!-- 05 — Sistema de Batalha -->
+        <section class="slide slide--red" data-index="4">
+            <div class="slide__inner">
+                <h2 class="slide__title" data-animate>Sistema de Batalha</h2>
+                <ul class="slide__list">
+                    <li data-animate>🃏 Escolha sua <strong>habilidade</strong> a cada turno</li>
+                    <li data-animate>👹 Inimigos gerados <strong>proceduralmente</strong></li>
+                    <li data-animate>💥 Críticos &nbsp;·&nbsp; Atordoamento &nbsp;·&nbsp; Cura</li>
+                    <li data-animate>📊 Vantagem de classe: <strong>+20%</strong> de dano</li>
+                </ul>
+                <div class="battle-preview" data-animate>
+                    <div class="battle-line battle-turn">=== Turno 3 ===</div>
+                    <div class="battle-line battle-atk">⚔ Herói usa <em>'Bola de Fogo'</em> (VANTAGEM)</div>
+                    <div class="battle-line battle-dmg">&nbsp;&nbsp;Dano causado: 18 [CRÍTICO! x1.5]</div>
+                    <div class="battle-line battle-hp">&nbsp;&nbsp;Inimigo: 4/22 HP</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 06 — Sorte & Raridade -->
+        <section class="slide slide--gold" data-index="5">
+            <div class="slide__inner">
+                <h2 class="slide__title" data-animate>Sorte &amp; Raridade</h2>
+                <div class="rarity-list">
+                    <div class="rarity-row" data-animate>
+                        <span class="rarity-label rarity-common">Common</span>
+                        <div class="rarity-bar-wrap">
+                            <div class="rarity-bar-fill rarity-fill-common" data-width="80"></div>
+                        </div>
+                        <span class="rarity-pct">20% de miss</span>
+                    </div>
+                    <div class="rarity-row" data-animate>
+                        <span class="rarity-label rarity-rare">Rare</span>
+                        <div class="rarity-bar-wrap">
+                            <div class="rarity-bar-fill rarity-fill-rare" data-width="48"></div>
+                        </div>
+                        <span class="rarity-pct">12% de miss</span>
+                    </div>
+                    <div class="rarity-row" data-animate>
+                        <span class="rarity-label rarity-epic">Epic</span>
+                        <div class="rarity-bar-wrap">
+                            <div class="rarity-bar-fill rarity-fill-epic" data-width="20"></div>
+                        </div>
+                        <span class="rarity-pct">5% de miss</span>
+                    </div>
+                </div>
+                <p class="luck-motto" data-animate>🍀 Quanto mais rara a habilidade, menor a chance de falhar</p>
+            </div>
+        </section>
+
+        <!-- 07 — Progressão -->
+        <section class="slide slide--dark" data-index="6">
+            <div class="slide__inner">
+                <h2 class="slide__title" data-animate>Progressão</h2>
+                <ul class="slide__list">
+                    <li data-animate>⬆️ Suba de nível ao <strong>vencer batalhas</strong></li>
+                    <li data-animate>🎁 Recompensa: <strong>+Vida</strong>, <strong>+Dano</strong> ou nova <strong>Habilidade</strong></li>
+                    <li data-animate>🔀 Até <strong>2 habilidades</strong> da classe adversária</li>
+                    <li data-animate>💀 Morte permanente — recomece do <strong>zero</strong></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 08 — Stack Técnica -->
+        <section class="slide slide--tech" data-index="7">
+            <div class="slide__inner">
+                <h2 class="slide__title" data-animate>Stack Técnica</h2>
+                <div class="tech-grid">
+                    <div class="tech-tag" data-animate>ASP.NET Core 10</div>
+                    <div class="tech-tag" data-animate>Entity Framework Core</div>
+                    <div class="tech-tag" data-animate>MySQL 8+</div>
+                    <div class="tech-tag" data-animate>JWT + Cookie Auth</div>
+                    <div class="tech-tag" data-animate>MVC + REST API</div>
+                    <div class="tech-tag" data-animate>Scalar API Docs</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 09 — Obrigado -->
+        <section class="slide slide--gameover" data-index="8">
+            <div class="slide__inner">
+                <div class="go-text js-glitch" data-animate data-text="GAME OVER">GAME OVER</div>
+                <div class="go-or" data-animate>... ou seria apenas o início?</div>
+                <div class="go-thanks" data-animate>Obrigado!</div>
+                <div class="go-restart" data-animate id="goRestart">← Recomeçar apresentação</div>
+            </div>
+        </section>
+
+    </div>
+
+    <nav class="nav-bar">
+        <button class="nav-btn" id="prevBtn">&#9664;</button>
+        <div class="nav-dots" id="navDots"></div>
+        <button class="nav-btn" id="nextBtn">&#9654;</button>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+</html>
