@@ -72,6 +72,8 @@ namespace FordEnterRPG.Services
             await _db.Battles
                 .FirstOrDefaultAsync(b => b.CharacterId == characterId && b.Status == "Active");
 
+        private const double EnemyMissChance = 0.15;
+
         public static double GetMissChance(Skill skill) =>
             skill.EffectType == "Heal" ? 0.0 : skill.Rarity switch
             {
@@ -80,7 +82,7 @@ namespace FordEnterRPG.Services
                 _      => 0.20
             };
 
-        public async Task ExecuteTurnAsync(Battle battle, Character player, Skill skill)
+        public async Task ExecuteTurnAsync(Battle battle, Character player, Skill skill, bool? clientIsHit = null)
         {
             var rng  = new Random();
             var log  = new List<string>();
@@ -98,7 +100,7 @@ namespace FordEnterRPG.Services
                 string advText = AdvantageLabel(player.Class, battle.EnemyClass);
                 log.Add($"ATAQUE: {player.Name} usa '{skill.Name}'{advText}");
 
-                bool missed = rng.NextDouble() < GetMissChance(skill);
+                bool missed = clientIsHit.HasValue ? !clientIsHit.Value : rng.NextDouble() < GetMissChance(skill);
                 if (missed)
                 {
                     log.Add($"  [ERROU] O ataque falhou!");
@@ -151,19 +153,25 @@ namespace FordEnterRPG.Services
                 {
                     var moves  = EnemyMoves[battle.EnemyClass];
                     var move   = moves[rng.Next(moves.Length)];
-                    float adv  = AdvantageMultiplier(battle.EnemyClass, player.Class);
-                    int eDmg   = Math.Max(1, (int)((move.dmg + battle.EnemyDamage) * adv));
-
-                    battle.PlayerCurrentLife = Math.Max(0, battle.PlayerCurrentLife - eDmg);
-
-                    bool stuns  = rng.NextDouble() < 0.10;
-                    string eFx  = stuns ? " [ATORDOOU!]" : "";
-                    if (stuns) battle.PlayerStunned = true;
-
                     string eAdv = AdvantageLabel(battle.EnemyClass, player.Class);
                     log.Add($"ATAQUE: {battle.EnemyName} usa '{move.name}'{eAdv}");
-                    log.Add($"  Dano causado: {eDmg}{eFx}");
-                    log.Add($"  {player.Name}: {battle.PlayerCurrentLife}/{player.Life} HP");
+
+                    bool enemyMissed = rng.NextDouble() < EnemyMissChance;
+                    if (enemyMissed)
+                    {
+                        log.Add($"  [ERROU] O ataque falhou!");
+                    }
+                    else
+                    {
+                        float adv  = AdvantageMultiplier(battle.EnemyClass, player.Class);
+                        int eDmg   = Math.Max(1, (int)((move.dmg + battle.EnemyDamage) * adv));
+                        battle.PlayerCurrentLife = Math.Max(0, battle.PlayerCurrentLife - eDmg);
+                        bool stuns  = rng.NextDouble() < 0.10;
+                        string eFx  = stuns ? " [ATORDOOU!]" : "";
+                        if (stuns) battle.PlayerStunned = true;
+                        log.Add($"  Dano causado: {eDmg}{eFx}");
+                        log.Add($"  {player.Name}: {battle.PlayerCurrentLife}/{player.Life} HP");
+                    }
                 }
 
                 if (battle.PlayerCurrentLife <= 0)
@@ -190,7 +198,7 @@ namespace FordEnterRPG.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task<(Skill? replaced, Skill? acquired)> ClaimRewardAsync(Battle battle, Character player, string choice)
+        public async Task<(Skill? replaced, Skill? acquired)> ClaimRewardAsync(Battle battle, Character player, string choice, string? rarity = null)
         {
             Skill? replaced = null;
             Skill? acquired = null;
@@ -232,6 +240,13 @@ namespace FordEnterRPG.Services
                                   || (s.ClassName == counterClass && crossCount < 2)))
                         .Select(s => new { s.Id, s.Rarity })
                         .ToListAsync();
+
+                    /* if the roulette landed on a specific rarity, honour it */
+                    if (!string.IsNullOrEmpty(rarity))
+                    {
+                        var byRarity = candidates.Where(c => c.Rarity == rarity).ToList();
+                        if (byRarity.Count > 0) candidates = byRarity;
+                    }
 
                     Skill? newSkill = null;
                     if (candidates.Count > 0)

@@ -54,11 +54,25 @@ namespace FordEnterRPG.Controllers.Pages
             var full = await _characterService.GetByIdWithSkillsAsync(character.Id);
             ViewBag.Character = full;
             ViewBag.Battle = battle;
+
+            /* pass enemy attack result from the latest log so JS can animate it */
+            if (battle.TurnCount > 0 && battle.Logs.Any() && battle.Status == "Active")
+            {
+                var lastLog = battle.Logs.OrderByDescending(l => l.Turn).First();
+                var enemy = ParseEnemyAttack(lastLog.Description, full!.Name);
+                if (enemy.HasValue)
+                {
+                    ViewBag.EnemySlotTurn  = battle.TurnCount;
+                    ViewBag.EnemySlotHit   = enemy.Value.hit;
+                    ViewBag.EnemySlotSkill = enemy.Value.skill;
+                }
+            }
+
             return View("~/Views/Battle.cshtml");
         }
 
         [HttpPost("/Battle/{id:int}/Turn")]
-        public async Task<IActionResult> Turn(int id, [FromForm] int skillId)
+        public async Task<IActionResult> Turn(int id, [FromForm] int skillId, [FromForm] string? isHit)
         {
             var userId = GetUserId();
             if (userId == 0) return Redirect("/SignIn");
@@ -75,7 +89,8 @@ namespace FordEnterRPG.Controllers.Pages
             var skill = character.CharacterSkills.FirstOrDefault(cs => cs.SkillId == skillId)?.Skill;
             if (skill == null) return Redirect($"/Battle/{id}");
 
-            await _battleService.ExecuteTurnAsync(battle, character, skill);
+            bool? clientIsHit = isHit != null ? isHit == "true" : null;
+            await _battleService.ExecuteTurnAsync(battle, character, skill, clientIsHit);
             return Redirect($"/Battle/{id}");
         }
 
@@ -98,7 +113,7 @@ namespace FordEnterRPG.Controllers.Pages
         }
 
         [HttpPost("/Battle/{id:int}/Reward")]
-        public async Task<IActionResult> ClaimReward(int id, [FromForm] string choice)
+        public async Task<IActionResult> ClaimReward(int id, [FromForm] string choice, [FromForm] string? rarity)
         {
             var userId = GetUserId();
             if (userId == 0) return Redirect("/SignIn");
@@ -112,7 +127,7 @@ namespace FordEnterRPG.Controllers.Pages
             if (battle == null || battle.CharacterId != character.Id || battle.Status != "Won" || battle.RewardClaimed)
                 return Redirect("/Character");
 
-            var (replaced, acquired) = await _battleService.ClaimRewardAsync(battle, character, choice);
+            var (replaced, acquired) = await _battleService.ClaimRewardAsync(battle, character, choice, rarity);
 
             if (choice == "Skill" && acquired != null)
             {
@@ -148,6 +163,43 @@ namespace FordEnterRPG.Controllers.Pages
                 return Redirect("/Character");
 
             return View("~/Views/SkillSwap.cshtml");
+        }
+
+        private static (bool hit, string skill)? ParseEnemyAttack(string desc, string playerName)
+        {
+            string? skill = null;
+            bool? hit = null;
+
+            foreach (var raw in desc.Split('\n'))
+            {
+                var ln = raw.Trim();
+                if (ln.StartsWith("ATAQUE: ") && ln.Contains(" usa '"))
+                {
+                    var actorEnd = ln.IndexOf(" usa '");
+                    var actor = ln[8..actorEnd];
+                    if (actor != playerName)
+                    {
+                        var si = ln.IndexOf("usa '") + 5;
+                        var ei = ln.IndexOf("'", si);
+                        if (ei > si) skill = ln[si..ei];
+                        hit = null; /* reset for this actor */
+                    }
+                    else
+                    {
+                        skill = null; /* reset if we see player's attack next */
+                        hit   = null;
+                    }
+                }
+                else if (skill != null && hit == null)
+                {
+                    if (ln.Contains("[ERROU]")) hit = false;
+                    else if (ln.StartsWith("Dano causado:")) hit = true;
+                }
+            }
+
+            if (skill != null && hit.HasValue)
+                return (hit.Value, skill);
+            return null;
         }
 
         private int GetUserId()

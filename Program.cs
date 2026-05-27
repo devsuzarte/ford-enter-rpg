@@ -35,7 +35,7 @@ builder.Services.AddAuthentication(options =>
     options.AccessDeniedPath = "/SignIn";
 })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-{
+{   
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
