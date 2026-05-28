@@ -9,9 +9,9 @@ namespace FordEnterRPG.Services
     {
         private static readonly Dictionary<string, (int life, int damage)> BaseStats = new()
         {
-            { "Warrior", (25, 7) },
-            { "Mage",    (18, 10) },
-            { "Archer",  (20, 8) }
+            { "Warrior", (100, 14) },
+            { "Mage",    (70,  20) },
+            { "Archer",  (85,  16) }
         };
 
         private readonly AppDbContext _db;

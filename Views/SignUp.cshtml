@@ -26,12 +26,7 @@
             display: grid;
             grid-template-columns: 62% 38%;
             height: 100vh;
-            animation: pageIn .45s ease both;
         }
-        @@keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .page-exit { animation: pageOut .35s ease forwards !important; }
-        @@keyframes pageOut { to { opacity: 0; transform: scale(.98); } }
 
         /* ── Cover panel ── */
         .cover-panel {
@@ -327,24 +322,6 @@
         }
         .f-check-text a:hover { color: #c89838; }
 
-        /* ── Loader ── */
-        #loader {
-            display: none; position: fixed; inset: 0;
-            background: rgba(3,2,1,.9); z-index: 9999;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-        .ld-spin {
-            width: 36px; height: 36px;
-            border: 3px solid #1a1610; border-top-color: #a07830;
-            border-radius: 50%; animation: spin .6s linear infinite;
-        }
-        @@keyframes spin { to { transform: rotate(360deg); } }
-        .ld-txt {
-            color: #6a6050; margin-top: 10px;
-            font-family: 'Cinzel', serif; font-size: .7rem;
-            letter-spacing: .15em; text-transform: uppercase;
-        }
-
         /* ── Responsive ── */
         @@media (max-width: 820px) {
             html, body { overflow: auto; }
@@ -494,12 +471,6 @@
 
 </div>
 
-<!-- Loader -->
-<div id="loader">
-    <div class="ld-spin"></div>
-    <div class="ld-txt">Carregando...</div>
-</div>
-
 <script>
 /* ── Ember particles ── */
 (function () {
@@ -566,27 +537,7 @@
     tick();
 })();
 
-/* ── Page exit transition + loader ── */
-(function () {
-    var wrap = document.getElementById('page-wrap');
-    var loader = document.getElementById('loader');
-
-    function exit() {
-        if (wrap) wrap.classList.add('page-exit');
-        setTimeout(function () {
-            if (loader) loader.style.display = 'flex';
-        }, 200);
-    }
-
-    document.addEventListener('submit', exit);
-    document.addEventListener('click', function (e) {
-        var a = e.target.closest('a[href]');
-        if (!a) return;
-        var h = a.getAttribute('href') || '';
-        if (!h || h[0] === '#' || /^(https?:|mailto:)/.test(h)) return;
-        exit();
-    });
-})();
 </script>
+<script src="/js/transitions.js"></script>
 </body>
 </html>

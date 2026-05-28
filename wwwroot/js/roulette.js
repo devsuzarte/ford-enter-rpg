@@ -34,6 +34,10 @@
 
     function runSlot(form, skillName) {
         pendingForm = form;
+
+        var layout = document.getElementById('battle-layout');
+        if (layout) layout.style.opacity = '0';
+
         var missChance = parseFloat(form.dataset.missChance || '0') / 100;
         var isHit = Math.random() >= missChance;
 
@@ -275,10 +279,12 @@
 
         setTimeout(function () {
             wheelOverlay.style.display = 'none';
-            var loader = document.getElementById('loader');
-            if (loader) loader.style.display = 'flex';
-            if (pendingForm) { pendingForm.submit(); pendingForm = null; }
-        }, 1100);
+            if (pendingForm) {
+                pendingForm.dataset.noTransition = '';
+                pendingForm.submit();
+                pendingForm = null;
+            }
+        }, 2000);
     }
 
     var skillForm = document.getElementById('skill-reward-form');

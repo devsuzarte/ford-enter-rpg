@@ -8,9 +8,9 @@ namespace FordEnterRPG.Services
     {
         private static readonly Dictionary<string, (int life, int damage)> EnemyBaseStats = new()
         {
-            { "Warrior", (22, 6) },
-            { "Mage",    (16, 9) },
-            { "Archer",  (18, 7) }
+            { "Warrior", (90,  12) },
+            { "Mage",    (62,  18) },
+            { "Archer",  (75,  14) }
         };
 
         private static readonly Dictionary<string, (string name, int dmg)[]> EnemyMoves = new()
@@ -49,9 +49,9 @@ namespace FordEnterRPG.Services
                 EnemyName      = $"{EnemyPrefixes[rng.Next(EnemyPrefixes.Length)]} {EnemySuffixes[enemyClass][rng.Next(EnemySuffixes[enemyClass].Length)]}",
                 EnemyClass     = enemyClass,
                 EnemyLevel     = player.Level,
-                EnemyMaxLife   = stats.life   + scale * 3,
-                EnemyCurrentLife = stats.life + scale * 3,
-                EnemyDamage    = stats.damage + scale,
+                EnemyMaxLife   = stats.life   + scale * 12,
+                EnemyCurrentLife = stats.life + scale * 12,
+                EnemyDamage    = stats.damage + scale * 3,
                 PlayerCurrentLife = player.Life,
                 Status         = "Active",
                 RunSequence    = seq,
@@ -221,11 +221,11 @@ namespace FordEnterRPG.Services
             switch (choice)
             {
                 case "Life":
-                    player.Life += 2;
+                    player.Life += 10;
                     break;
 
                 case "Damage":
-                    player.Damage += 1;
+                    player.Damage += 3;
                     break;
 
                 case "Skill":
