@@ -7,120 +7,537 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] — FordEnterRPG</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #0d0b09;
-            color: #ddd8c8;
-            min-height: 100vh;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body { height: 100%; overflow: hidden; background: #060503; }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.025) 3px,rgba(0,0,0,.025) 4px);
+            pointer-events: none; z-index: 9000;
+        }
+
+        /* ── Page layout ── */
+        .page-wrap {
+            display: grid;
+            grid-template-columns: 62% 38%;
+            height: 100vh;
+            animation: pageIn .45s ease both;
+        }
+        @@keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .page-exit { animation: pageOut .35s ease forwards !important; }
+        @@keyframes pageOut { to { opacity: 0; transform: scale(.98); } }
+
+        /* ── Cover panel ── */
+        .cover-panel {
+            position: relative;
+            overflow: hidden;
+            background: #050402;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .card {
-            background-color: #15120e;
-            border: 1px solid #2e2820;
-            border-radius: 12px;
+
+        .cover-panel::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 50% at 50% 92%, rgba(160,110,20,.2) 0%, transparent 60%),
+                radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(2,1,0,.75) 100%);
+            z-index: 1; pointer-events: none;
+        }
+
+        /* Gold separator edge */
+        .cover-panel::after {
+            content: '';
+            position: absolute; top: 0; right: 0;
+            width: 1px; height: 100%;
+            background: linear-gradient(to bottom,
+                transparent 5%,
+                rgba(150,110,40,.3) 20%,
+                rgba(200,152,56,.55) 50%,
+                rgba(150,110,40,.3) 80%,
+                transparent 95%);
+            z-index: 10;
+        }
+
+        #embers-canvas {
+            position: absolute; inset: 0;
+            z-index: 2; pointer-events: none;
+            width: 100%; height: 100%;
+        }
+
+        .cover-content {
+            position: relative; z-index: 5;
+            display: flex; flex-direction: column;
+            align-items: center; text-align: center;
+            padding: 2.5rem 2rem;
             width: 100%;
-            max-width: 420px;
-            padding: 2rem;
+            animation: coverIn .9s cubic-bezier(.22,1,.36,1) .15s both;
         }
-        .card-title {
-            color: #d4a84b;
-            font-size: 1.6rem;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 1.5rem;
+        @@keyframes coverIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
-        .form-label {
-            color: #9a9070;
-            font-size: 0.9rem;
+
+        /* Ornamental dividers */
+        .cover-orn {
+            display: flex; align-items: center;
+            gap: .7rem; width: 100%; max-width: 400px;
+            color: #5a4010; font-size: .72rem; letter-spacing: .25em;
         }
-        .form-control {
-            background-color: #0d0b09;
-            border: 1px solid #3c3426;
-            color: #ddd8c8;
-            border-radius: 8px;
+        .cover-orn::before, .cover-orn::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(to right, transparent, #5a4010);
         }
-        .form-control:focus {
-            background-color: #0d0b09;
-            border-color: #a07830;
-            color: #ddd8c8;
-            box-shadow: 0 0 0 0.2rem rgba(160, 120, 48, 0.25);
+        .cover-orn::after { background: linear-gradient(to left, transparent, #5a4010); }
+        .cover-orn.top { margin-bottom: 1rem; }
+        .cover-orn.bot { margin-top: .8rem; }
+
+        /* Sword icon */
+        .cover-seal {
+            font-size: 2rem; color: #c89838;
+            filter: drop-shadow(0 0 10px rgba(200,152,56,.5));
+            animation: sealPulse 3.5s ease-in-out infinite;
+            margin-bottom: .25rem;
         }
-        .form-control::placeholder { color: #505040; }
-        .btn-entrar {
-            background-color: #a07830;
-            border-color: #c89838;
-            color: #fff;
-            width: 100%;
-            padding: 0.65rem;
-            font-size: 1rem;
-            border-radius: 8px;
+        @@keyframes sealPulse {
+            0%,100% { filter: drop-shadow(0 0 8px rgba(200,152,56,.4)); }
+            50%      { filter: drop-shadow(0 0 20px rgba(200,152,56,.85)); }
         }
-        .btn-entrar:hover {
-            background-color: #c89838;
-            border-color: #c89838;
-            color: #fff;
-        }
-        .link-cadastro {
+
+        /* Title */
+        .cover-title { font-family: 'Cinzel Decorative', serif; font-weight: 900; line-height: 1; margin-bottom: .5rem; }
+        .cover-title .l1 {
+            display: block;
+            font-size: clamp(1.7rem, 3.2vw, 2.5rem);
             color: #c89838;
-            text-decoration: none;
+            text-shadow: 0 0 22px rgba(200,152,56,.4), 0 2px 6px rgba(0,0,0,.85);
+            letter-spacing: .1em;
+            animation: titleReveal .8s cubic-bezier(.22,1,.36,1) .4s both;
         }
-        .link-cadastro:hover { color: #d4a84b; text-decoration: underline; }
+        .cover-title .l2 {
+            display: block;
+            font-size: clamp(3rem, 6.5vw, 5rem);
+            color: #ffd700;
+            text-shadow: 0 0 32px rgba(255,215,0,.6), 0 0 64px rgba(200,152,56,.28), 0 3px 12px rgba(0,0,0,.9);
+            letter-spacing: .16em;
+            animation: titleReveal .8s cubic-bezier(.22,1,.36,1) .55s both, titleBreath 5s ease-in-out 1.5s infinite;
+        }
+        @@keyframes titleReveal {
+            from { opacity: 0; transform: scale(.88) translateY(8px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @@keyframes titleBreath {
+            0%,100% { text-shadow: 0 0 32px rgba(255,215,0,.6), 0 0 64px rgba(200,152,56,.28), 0 3px 12px rgba(0,0,0,.9); }
+            50%      { text-shadow: 0 0 50px rgba(255,215,0,.88), 0 0 100px rgba(200,152,56,.45), 0 3px 12px rgba(0,0,0,.9); }
+        }
+
+        .cover-tagline {
+            font-family: 'EB Garamond', serif; font-style: italic;
+            font-size: clamp(.9rem, 1.7vw, 1.15rem);
+            color: #7a7050; letter-spacing: .1em;
+            animation: coverIn .7s ease .9s both;
+        }
+
+        /* Character */
+        .cover-char {
+            position: relative; margin: 1rem 0 .6rem;
+            animation: charReveal .9s cubic-bezier(.22,1,.36,1) .65s both;
+        }
+        @@keyframes charReveal {
+            from { opacity: 0; transform: translateY(28px) scale(.87); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .cover-char svg {
+            width: clamp(110px, 15vw, 190px); height: auto;
+            filter: drop-shadow(0 0 16px rgba(200,152,56,.45)) drop-shadow(0 0 32px rgba(150,110,30,.2));
+            animation: charFloat 4.5s ease-in-out 1.6s infinite;
+        }
+        @@keyframes charFloat {
+            0%,100% { transform: translateY(0); }
+            50%      { transform: translateY(-8px); }
+        }
+        .char-glow {
+            position: absolute; bottom: -4px; left: 50%;
+            transform: translateX(-50%);
+            width: 65%; height: 14px;
+            background: radial-gradient(ellipse, rgba(180,140,36,.55) 0%, transparent 70%);
+            filter: blur(6px);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        @@keyframes glowPulse {
+            0%,100% { opacity: .5; transform: translateX(-50%) scaleX(.9); }
+            50%      { opacity: 1; transform: translateX(-50%) scaleX(1.25); }
+        }
+
+        /* Stats bar */
+        .cover-stats {
+            display: flex; align-items: center; gap: .8rem;
+            font-family: 'Cinzel', serif; font-size: .58rem;
+            letter-spacing: .18em; color: #5a4818; text-transform: uppercase;
+            animation: coverIn .6s ease 1.1s both;
+        }
+        .cover-stats .sep { color: #3a2e10; }
+
+        /* ── Form panel ── */
+        .form-panel {
+            background: #0b0907;
+            border-left: 1px solid rgba(46,40,32,.55);
+            display: flex; align-items: center; justify-content: center;
+            padding: 2rem; overflow-y: auto; position: relative;
+            animation: formIn .7s cubic-bezier(.22,1,.36,1) .25s both;
+        }
+        .form-panel::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(to right, transparent, rgba(160,120,48,.2), transparent);
+            pointer-events: none;
+        }
+        /* Left shadow from cover */
+        .form-panel::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 0% 50%, rgba(10,8,5,.5) 0%, transparent 55%);
+            pointer-events: none;
+        }
+        @@keyframes formIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .form-wrap { width: 100%; max-width: 340px; position: relative; z-index: 1; }
+
+        .form-logo {
+            text-align: center; font-size: 1.5rem; color: #c89838;
+            filter: drop-shadow(0 0 6px rgba(200,152,56,.4));
+            animation: sealPulse 3.5s ease-in-out infinite;
+            margin-bottom: .2rem;
+        }
+        .form-heading {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.35rem; color: #c89838; text-align: center;
+            margin-bottom: .3rem; letter-spacing: .05em;
+            text-shadow: 0 0 12px rgba(200,152,56,.25);
+        }
+        .form-sub {
+            font-family: 'EB Garamond', serif; font-style: italic;
+            font-size: .88rem; color: #5a5030; text-align: center;
+            margin-bottom: 1.6rem;
+        }
+
+        .form-sep { border: none; border-top: 1px solid #1a1610; margin: 1.3rem 0; }
+
+        .f-group { margin-bottom: .95rem; }
+        .f-label {
+            display: block; color: #7a7060;
+            font-family: 'Cinzel', serif; font-size: .72rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            margin-bottom: .28rem;
+        }
+        .f-input {
+            width: 100%; background: #080604;
+            border: 1px solid #2a2218; color: #ccc8b8;
+            border-radius: 6px; padding: .54rem .78rem;
+            font-family: 'EB Garamond', serif; font-size: 1rem;
+            transition: border-color .2s, box-shadow .2s; outline: none;
+        }
+        .f-input:focus {
+            border-color: #8a6820;
+            box-shadow: 0 0 0 3px rgba(138,104,32,.14), 0 0 10px rgba(138,104,32,.1);
+        }
+        .f-input::placeholder { color: #2a2010; }
+
+        .btn-main {
+            width: 100%; padding: .68rem;
+            background: linear-gradient(135deg, #8a6820 0%, #c89838 60%, #a07830 100%);
+            border: 1px solid #c89838; color: #fdf0d0;
+            font-family: 'Cinzel', serif; font-size: .88rem;
+            letter-spacing: .12em; text-transform: uppercase;
+            border-radius: 6px; cursor: pointer;
+            transition: all .2s; position: relative; overflow: hidden;
+            margin-top: .25rem;
+        }
+        .btn-main::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .btn-main:hover {
+            background: linear-gradient(135deg, #a07830 0%, #ffd700 60%, #c89838 100%);
+            border-color: #ffd700; color: #1a1206;
+            box-shadow: 0 0 22px rgba(200,152,56,.42), 0 4px 14px rgba(0,0,0,.45);
+            transform: translateY(-1px);
+        }
+        .btn-main:active { transform: translateY(0); }
+
         .error-msg {
-            background-color: #2a0a0a;
-            border: 1px solid #6a2a2a;
-            border-radius: 8px;
-            padding: 0.6rem 0.9rem;
-            color: #ff9a9a;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            background: rgba(36,8,8,.9); border: 1px solid #4e1a1a;
+            border-radius: 5px; padding: .52rem .78rem;
+            color: #f08080; font-size: .84rem; margin-bottom: .8rem;
+        }
+
+        .form-switch {
+            text-align: center; margin-top: 1.3rem;
+            font-size: .84rem; color: #4a4030;
+        }
+        .form-switch a {
+            color: #9a7828; text-decoration: none;
+            font-family: 'Cinzel', serif; font-size: .78rem;
+            letter-spacing: .05em; transition: color .15s, text-shadow .15s;
+        }
+        .form-switch a:hover { color: #c89838; text-shadow: 0 0 8px rgba(200,152,56,.4); }
+
+        /* ── Loader ── */
+        #loader {
+            display: none; position: fixed; inset: 0;
+            background: rgba(3,2,1,.9); z-index: 9999;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        .ld-spin {
+            width: 36px; height: 36px;
+            border: 3px solid #1a1610; border-top-color: #a07830;
+            border-radius: 50%; animation: spin .6s linear infinite;
+        }
+        @@keyframes spin { to { transform: rotate(360deg); } }
+        .ld-txt {
+            color: #6a6050; margin-top: 10px;
+            font-family: 'Cinzel', serif; font-size: .7rem;
+            letter-spacing: .15em; text-transform: uppercase;
+        }
+
+        /* ── Responsive ── */
+        @@media (max-width: 820px) {
+            html, body { overflow: auto; }
+            .page-wrap { grid-template-columns: 1fr; grid-template-rows: 38vh auto; height: auto; min-height: 100vh; }
+            .cover-panel { height: 38vh; min-height: 280px; }
+            .cover-char svg { width: 85px; }
+            .form-panel { border-left: none; border-top: 1px solid #1e1a14; padding: 2rem 1.5rem; }
+            .form-panel::after { display: none; }
         }
     </style>
 </head>
 <body>
-<div class="card shadow-lg">
+<div class="page-wrap" id="page-wrap">
 
-    <div class="card-title">&#9876; FordEnterRPG</div>
+    <!-- ── Capa ── -->
+    <section class="cover-panel">
+        <canvas id="embers-canvas"></canvas>
+        <div class="cover-content">
 
-    @if (!ViewData.ModelState.IsValid)
-    {
-        foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-        {
-            <div class="error-msg">@err.ErrorMessage</div>
-        }
+            <div class="cover-orn top">✦</div>
+
+            <div class="cover-seal">⚔</div>
+
+            <h1 class="cover-title">
+                <span class="l1">FordEnter</span>
+                <span class="l2">RPG</span>
+            </h1>
+
+            <p class="cover-tagline">Forje sua lenda no mundo medieval</p>
+
+            <div class="cover-char">
+                <div class="char-glow"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160" fill="none">
+                    <defs>
+                        <radialGradient id="wglow" cx="50%" cy="60%" r="50%">
+                            <stop offset="0%" stop-color="#e08060" stop-opacity="0.35"/>
+                            <stop offset="100%" stop-color="#e08060" stop-opacity="0"/>
+                        </radialGradient>
+                        <linearGradient id="warmor" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#c07050"/>
+                            <stop offset="100%" stop-color="#7a3a1a"/>
+                        </linearGradient>
+                        <linearGradient id="whelm" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#d08060"/>
+                            <stop offset="100%" stop-color="#904030"/>
+                        </linearGradient>
+                        <linearGradient id="wshield" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#a06040"/>
+                            <stop offset="100%" stop-color="#5a2a10"/>
+                        </linearGradient>
+                        <linearGradient id="wsword" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#e0e8f0"/>
+                            <stop offset="100%" stop-color="#8090a0"/>
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="60" cy="110" rx="46" ry="40" fill="url(#wglow)"/>
+                    <rect x="41" y="114" width="14" height="30" rx="5" fill="#5a2a0a"/>
+                    <rect x="65" y="114" width="14" height="30" rx="5" fill="#5a2a0a"/>
+                    <rect x="39" y="136" width="18" height="10" rx="4" fill="#3a1800"/>
+                    <rect x="63" y="136" width="18" height="10" rx="4" fill="#3a1800"/>
+                    <rect x="34" y="78" width="52" height="40" rx="8" fill="url(#warmor)"/>
+                    <rect x="42" y="84" width="36" height="24" rx="4" fill="#90402a" opacity=".5"/>
+                    <line x1="60" y1="84" x2="60" y2="108" stroke="#c06040" stroke-width="1.5" opacity=".6"/>
+                    <ellipse cx="34" cy="84" rx="10" ry="8" fill="#c07050"/>
+                    <ellipse cx="86" cy="84" rx="10" ry="8" fill="#c07050"/>
+                    <rect x="10" y="84" width="22" height="30" rx="6" fill="url(#wshield)" stroke="#7a3a1a" stroke-width="1.5"/>
+                    <line x1="21" y1="84" x2="21" y2="114" stroke="#7a3a1a" stroke-width="2"/>
+                    <line x1="10" y1="99" x2="32" y2="99" stroke="#7a3a1a" stroke-width="2"/>
+                    <circle cx="21" cy="99" r="4" fill="#c07840" stroke="#7a3a1a" stroke-width="1"/>
+                    <line x1="86" y1="90" x2="108" y2="48" stroke="#9090b0" stroke-width="6" stroke-linecap="round"/>
+                    <rect x="103" y="28" width="6" height="38" rx="2" transform="rotate(30 103 28)" fill="url(#wsword)" stroke="#c0c8d8" stroke-width=".8"/>
+                    <rect x="96" y="62" width="22" height="5" rx="2" transform="rotate(30 96 62)" fill="#b09060"/>
+                    <rect x="52" y="64" width="16" height="16" rx="4" fill="#c07050"/>
+                    <ellipse cx="60" cy="56" rx="22" ry="20" fill="url(#whelm)"/>
+                    <rect x="44" y="56" width="32" height="8" rx="3" fill="#1a0a04" opacity=".8"/>
+                    <path d="M50 36 Q60 18 70 36" stroke="#d06040" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <path d="M38 56 Q60 44 82 56" stroke="#d08060" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+
+            <div class="cover-orn bot">✦</div>
+
+            <div class="cover-stats">
+                <span>⚔ Batalhas</span>
+                <span class="sep">✦</span>
+                <span>🛡 Classes</span>
+                <span class="sep">✦</span>
+                <span>⚡ Habilidades</span>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ── Formulário ── -->
+    <section class="form-panel">
+        <div class="form-wrap">
+
+            <div class="form-logo">⚔</div>
+            <h2 class="form-heading">Entrar</h2>
+            <p class="form-sub">Bem-vindo de volta, aventureiro</p>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div class="error-msg">@err.ErrorMessage</div>
+                }
+            }
+
+            <form method="post" action="/SignIn">
+                <div class="f-group">
+                    <label class="f-label" for="email">E-mail</label>
+                    <input id="email" type="email" name="email" class="f-input"
+                           placeholder="seu@email.com" autocomplete="email" required />
+                </div>
+                <div class="f-group">
+                    <label class="f-label" for="password">Senha</label>
+                    <input id="password" type="password" name="password" class="f-input"
+                           placeholder="••••••••" autocomplete="current-password" required />
+                </div>
+                <button type="submit" class="btn-main">Entrar</button>
+            </form>
+
+            <hr class="form-sep" />
+
+            <div class="form-switch">
+                Não tem conta?&nbsp;<a href="/SignUp">Criar conta</a>
+            </div>
+
+        </div>
+    </section>
+
+</div>
+
+<!-- Loader -->
+<div id="loader">
+    <div class="ld-spin"></div>
+    <div class="ld-txt">Carregando...</div>
+</div>
+
+<script>
+/* ── Ember particles ── */
+(function () {
+    var canvas = document.getElementById('embers-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var embers = [];
+
+    function resize() {
+        canvas.width = canvas.offsetWidth || canvas.clientWidth;
+        canvas.height = canvas.offsetHeight || canvas.clientHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function spawn() {
+        embers.push({
+            x: Math.random() * canvas.width,
+            y: canvas.height + 6,
+            r: Math.random() * 1.8 + .4,
+            vy: Math.random() * .9 + .35,
+            vx: (Math.random() - .5) * .45,
+            op: Math.random() * .55 + .2,
+            life: 0,
+            max: Math.random() * 220 + 90
+        });
     }
 
-    <form method="post" action="/SignIn">
-        <div class="mb-3">
-            <label class="form-label" for="email">E-mail</label>
-            <input id="email" type="email" name="email" class="form-control"
-                   placeholder="seu@email.com" autocomplete="email" required />
-        </div>
-        <div class="mb-4">
-            <label class="form-label" for="password">Senha</label>
-            <input id="password" type="password" name="password" class="form-control"
-                   placeholder="••••••••" autocomplete="current-password" required />
-        </div>
-        <button type="submit" class="btn btn-entrar">Entrar</button>
-    </form>
+    function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    <div class="text-center mt-3" style="font-size:0.9rem; color:#70654a;">
-        Nao tem conta?
-        <a href="/SignUp" class="link-cadastro">Cadastrar-se</a>
-    </div>
+        if (Math.random() < .12 && embers.length < 45) spawn();
 
-</div>
-<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,4,2,.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
-    <div style="width:42px;height:42px;border:4px solid #2e2820;border-top-color:#a07830;border-radius:50%;animation:_sp .65s linear infinite;"></div>
-    <div style="color:#9a9070;margin-top:12px;font-size:.82rem;">Carregando...</div>
-</div>
-<style>@@keyframes _sp{to{transform:rotate(360deg)}}</style>
-<script>
-(function(){var o=document.getElementById('loader');function s(){o.style.display='flex';}
-document.addEventListener('submit',s);
-document.addEventListener('click',function(e){var a=e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(!h||h[0]==='#'||/^(https?:|mailto:)/.test(h))return;s();});})();
+        for (var i = embers.length - 1; i >= 0; i--) {
+            var e = embers[i];
+            e.y -= e.vy;
+            e.x += e.vx;
+            e.life++;
+
+            var fade = e.life < 18 ? e.life / 18
+                     : e.life > e.max - 25 ? (e.max - e.life) / 25
+                     : 1;
+
+            ctx.save();
+            ctx.globalAlpha = e.op * fade;
+            ctx.fillStyle = Math.random() < .3 ? '#ffd700' : '#c89838';
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+            ctx.fill();
+
+            var g = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, e.r * 3.5);
+            g.addColorStop(0, 'rgba(200,152,56,.35)');
+            g.addColorStop(1, 'rgba(200,152,56,0)');
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.r * 3.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            if (e.life >= e.max || e.y < -10) embers.splice(i, 1);
+        }
+        requestAnimationFrame(tick);
+    }
+    tick();
+})();
+
+/* ── Page exit transition + loader ── */
+(function () {
+    var wrap = document.getElementById('page-wrap');
+    var loader = document.getElementById('loader');
+
+    function exit() {
+        if (wrap) wrap.classList.add('page-exit');
+        setTimeout(function () {
+            if (loader) loader.style.display = 'flex';
+        }, 200);
+    }
+
+    document.addEventListener('submit', exit);
+    document.addEventListener('click', function (e) {
+        var a = e.target.closest('a[href]');
+        if (!a) return;
+        var h = a.getAttribute('href') || '';
+        if (!h || h[0] === '#' || /^(https?:|mailto:)/.test(h)) return;
+        exit();
+    });
+})();
 </script>
 </body>
 </html>

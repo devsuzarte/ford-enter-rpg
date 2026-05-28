@@ -82,105 +82,39 @@ namespace FordEnterRPG.Services
                 _      => 0.20
             };
 
-        public async Task ExecuteTurnAsync(Battle battle, Character player, Skill skill, bool? clientIsHit = null)
+        public async Task ExecuteTurnAsync(Battle battle, Character player, Skill skill, bool? clientIsHit = null, bool? playerGoesFirst = null)
         {
-            var rng  = new Random();
-            var log  = new List<string>();
+            var rng = new Random();
+            var log = new List<string>();
             battle.TurnCount++;
+
+            if (battle.TurnCount == 1 && playerGoesFirst.HasValue)
+                battle.PlayerGoesFirst = playerGoesFirst.Value;
 
             log.Add($"=== Turno {battle.TurnCount} ===");
 
-            if (battle.PlayerStunned)
+            if (battle.PlayerGoesFirst)
             {
-                log.Add($"[ATORDOADO] {player.Name} não consegue agir neste turno.");
-                battle.PlayerStunned = false;
+                DoPlayerTurn(battle, player, skill, clientIsHit, rng, log);
+                if (battle.EnemyCurrentLife <= 0)
+                    DoVictory(battle, player, log);
+                else
+                {
+                    DoEnemyTurn(battle, player, rng, log);
+                    if (battle.PlayerCurrentLife <= 0)
+                        DoDefeat(battle, player, log);
+                }
             }
             else
             {
-                string advText = AdvantageLabel(player.Class, battle.EnemyClass);
-                log.Add($"ATAQUE: {player.Name} usa '{skill.Name}'{advText}");
-
-                bool missed = clientIsHit.HasValue ? !clientIsHit.Value : rng.NextDouble() < GetMissChance(skill);
-                if (missed)
-                {
-                    log.Add($"  [ERROU] O ataque falhou!");
-                }
-                else
-                {
-                    int dmg = CalcDamage(
-                        skill.BaseDamage, player.Damage,
-                        player.Class, battle.EnemyClass,
-                        skill.EffectType, rng,
-                        out string tags);
-
-                    battle.EnemyCurrentLife = Math.Max(0, battle.EnemyCurrentLife - dmg);
-
-                    if (skill.EffectType == "Heal")
-                    {
-                        int healed = Math.Min(skill.EffectValue, player.Life - battle.PlayerCurrentLife);
-                        battle.PlayerCurrentLife += healed;
-                        tags += $" [CURA +{healed} HP]";
-                    }
-
-                    if (skill.EffectType == "Stun" && rng.NextDouble() < 0.30)
-                    {
-                        battle.EnemyStunned = true;
-                        tags += " [ATORDOOU!]";
-                    }
-
-                    log.Add($"  Dano causado: {dmg}{tags}");
-                    log.Add($"  Inimigo: {battle.EnemyCurrentLife}/{battle.EnemyMaxLife} HP");
-                }
-            }
-
-            if (battle.EnemyCurrentLife <= 0)
-            {
-                battle.Status = "Won";
-                player.Wins++;
-                player.Level++;
-                log.Add($"");
-                log.Add($"VITORIA! {battle.EnemyName} foi derrotado!");
-                log.Add($"{player.Name} subiu para o nivel {player.Level}!");
-            }
-            else
-            {
-                if (battle.EnemyStunned)
-                {
-                    log.Add($"[ATORDOADO] {battle.EnemyName} nao consegue agir neste turno.");
-                    battle.EnemyStunned = false;
-                }
-                else
-                {
-                    var moves  = EnemyMoves[battle.EnemyClass];
-                    var move   = moves[rng.Next(moves.Length)];
-                    string eAdv = AdvantageLabel(battle.EnemyClass, player.Class);
-                    log.Add($"ATAQUE: {battle.EnemyName} usa '{move.name}'{eAdv}");
-
-                    bool enemyMissed = rng.NextDouble() < EnemyMissChance;
-                    if (enemyMissed)
-                    {
-                        log.Add($"  [ERROU] O ataque falhou!");
-                    }
-                    else
-                    {
-                        float adv  = AdvantageMultiplier(battle.EnemyClass, player.Class);
-                        int eDmg   = Math.Max(1, (int)((move.dmg + battle.EnemyDamage) * adv));
-                        battle.PlayerCurrentLife = Math.Max(0, battle.PlayerCurrentLife - eDmg);
-                        bool stuns  = rng.NextDouble() < 0.10;
-                        string eFx  = stuns ? " [ATORDOOU!]" : "";
-                        if (stuns) battle.PlayerStunned = true;
-                        log.Add($"  Dano causado: {eDmg}{eFx}");
-                        log.Add($"  {player.Name}: {battle.PlayerCurrentLife}/{player.Life} HP");
-                    }
-                }
-
+                DoEnemyTurn(battle, player, rng, log);
                 if (battle.PlayerCurrentLife <= 0)
+                    DoDefeat(battle, player, log);
+                else
                 {
-                    battle.Status = "Lost";
-                    player.Losses++;
-                    player.IsDead = true;
-                    log.Add($"");
-                    log.Add($"DERROTA. {player.Name} foi derrotado por {battle.EnemyName}.");
+                    DoPlayerTurn(battle, player, skill, clientIsHit, rng, log);
+                    if (battle.EnemyCurrentLife <= 0)
+                        DoVictory(battle, player, log);
                 }
             }
 
@@ -196,6 +130,87 @@ namespace FordEnterRPG.Services
             _db.Battles.Update(battle);
             _db.Characters.Update(player);
             await _db.SaveChangesAsync();
+        }
+
+        private void DoPlayerTurn(Battle battle, Character player, Skill skill, bool? clientIsHit, Random rng, List<string> log)
+        {
+            if (battle.PlayerStunned)
+            {
+                log.Add($"[ATORDOADO] {player.Name} não consegue agir neste turno.");
+                battle.PlayerStunned = false;
+                return;
+            }
+
+            string advText = AdvantageLabel(player.Class, battle.EnemyClass);
+            log.Add($"ATAQUE: {player.Name} usa '{skill.Name}'{advText}");
+
+            bool missed = clientIsHit.HasValue ? !clientIsHit.Value : rng.NextDouble() < GetMissChance(skill);
+            if (missed) { log.Add($"  [ERROU] O ataque falhou!"); return; }
+
+            int dmg = CalcDamage(skill.BaseDamage, player.Damage, player.Class, battle.EnemyClass, skill.EffectType, rng, out string tags);
+            battle.EnemyCurrentLife = Math.Max(0, battle.EnemyCurrentLife - dmg);
+
+            if (skill.EffectType == "Heal")
+            {
+                int healed = Math.Min(skill.EffectValue, player.Life - battle.PlayerCurrentLife);
+                battle.PlayerCurrentLife += healed;
+                tags += $" [CURA +{healed} HP]";
+            }
+
+            if (skill.EffectType == "Stun" && rng.NextDouble() < 0.30)
+            {
+                battle.EnemyStunned = true;
+                tags += " [ATORDOOU!]";
+            }
+
+            log.Add($"  Dano causado: {dmg}{tags}");
+            log.Add($"  Inimigo: {battle.EnemyCurrentLife}/{battle.EnemyMaxLife} HP");
+        }
+
+        private void DoEnemyTurn(Battle battle, Character player, Random rng, List<string> log)
+        {
+            if (battle.EnemyStunned)
+            {
+                log.Add($"[ATORDOADO] {battle.EnemyName} nao consegue agir neste turno.");
+                battle.EnemyStunned = false;
+                return;
+            }
+
+            var moves = EnemyMoves[battle.EnemyClass];
+            var move  = moves[rng.Next(moves.Length)];
+            string eAdv = AdvantageLabel(battle.EnemyClass, player.Class);
+            log.Add($"ATAQUE: {battle.EnemyName} usa '{move.name}'{eAdv}");
+
+            bool enemyMissed = rng.NextDouble() < EnemyMissChance;
+            if (enemyMissed) { log.Add($"  [ERROU] O ataque falhou!"); return; }
+
+            float adv = AdvantageMultiplier(battle.EnemyClass, player.Class);
+            int eDmg  = Math.Max(1, (int)((move.dmg + battle.EnemyDamage) * adv));
+            battle.PlayerCurrentLife = Math.Max(0, battle.PlayerCurrentLife - eDmg);
+            bool stuns = rng.NextDouble() < 0.10;
+            if (stuns) battle.PlayerStunned = true;
+            string eFx = stuns ? " [ATORDOOU!]" : "";
+            log.Add($"  Dano causado: {eDmg}{eFx}");
+            log.Add($"  {player.Name}: {battle.PlayerCurrentLife}/{player.Life} HP");
+        }
+
+        private static void DoVictory(Battle battle, Character player, List<string> log)
+        {
+            battle.Status = "Won";
+            player.Wins++;
+            player.Level++;
+            log.Add($"");
+            log.Add($"VITORIA! {battle.EnemyName} foi derrotado!");
+            log.Add($"{player.Name} subiu para o nivel {player.Level}!");
+        }
+
+        private static void DoDefeat(Battle battle, Character player, List<string> log)
+        {
+            battle.Status = "Lost";
+            player.Losses++;
+            player.IsDead = true;
+            log.Add($"");
+            log.Add($"DERROTA. {player.Name} foi derrotado por {battle.EnemyName}.");
         }
 
         public async Task<(Skill? replaced, Skill? acquired)> ClaimRewardAsync(Battle battle, Character player, string choice, string? rarity = null)
@@ -254,9 +269,9 @@ namespace FordEnterRPG.Services
                         var weighted = candidates
                             .SelectMany(c => Enumerable.Repeat(c.Id, c.Rarity switch
                             {
-                                "Epic" => 4,
+                                "Epic" => 1,
                                 "Rare" => 2,
-                                _      => 1
+                                _      => 4
                             }))
                             .ToList();
 

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/css/theme.css" />
     <style>
         body { display:flex; align-items:flex-start; justify-content:center; padding:2rem 1rem; }
-        h1 { color:#d4a84b; font-size:1.6rem; }
+        h1 { color:#c89838; font-size:1.6rem; font-family:var(--font-title); letter-spacing:.04em; text-shadow:0 0 18px rgba(201,162,39,.35); }
 
         .class-card {
             background:#15120e; border:2px solid #2e2820; border-radius:12px;
@@ -35,8 +35,8 @@
         .mage-color    { color:#4890c8; }
         .archer-color  { color:#60b870; }
 
-        .class-card h5 { color:#ddd8c8; margin-bottom:.15rem; font-size:1rem; }
-        .class-card .class-internal { color:#70654a; font-size:.72rem; margin-bottom:.6rem; }
+        .class-card h5 { color:#ddd8c8; margin-bottom:.15rem; font-size:1rem; font-family:var(--font-label); letter-spacing:.06em; }
+        .class-card .class-internal { color:#70654a; font-size:.68rem; margin-bottom:.6rem; font-family:var(--font-label); letter-spacing:.08em; text-transform:uppercase; }
         .class-card .stat   { font-size:.82rem; color:#9a9070; margin-bottom:.12rem; }
         .class-card .stat strong { color:#ddd8c8; }
         .class-card .adv    { font-size:.78rem; margin-top:.4rem; font-weight:600; }
@@ -45,9 +45,10 @@
         .btn-criar {
             background:#a07830; border-color:#c89838; color:#fff;
             font-size:1rem; padding:.65rem; border-radius:8px; width:100%;
-            transition: background .15s;
+            transition: background .15s, box-shadow .2s;
+            font-family:var(--font-label); letter-spacing:.06em;
         }
-        .btn-criar:hover { background:#c89838; border-color:#c89838; color:#fff; }
+        .btn-criar:hover { background:#c89838; border-color:#c89838; color:#fff; box-shadow:0 0 20px rgba(201,162,39,.35); }
 
         .error-msg {
             background:#2a0a0a; border:1px solid #6a2a2a;

@@ -1,4 +1,6 @@
-/* ── FordEnterRPG – shared theme (medieval) ── */
+/* ── FordEnterRPG – shared theme (medieval dark-fantasy) ── */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+
 *, *::before, *::after { box-sizing: border-box; }
 
 :root {
@@ -14,6 +16,7 @@
     --accent-hi:  #c89838;
     --accent-lo:  #7a5818;
     --gold:       #ffd700;
+    --gold-glow:  rgba(201, 162, 39, 0.45);
     --blue:       #56b4e9;
     --green:      #66dd88;
     --red:        #e64040;
@@ -25,13 +28,72 @@
     --rarity-common: #888877;
     --rarity-rare:   #56b4e9;
     --rarity-epic:   #ffd700;
+    --font-title: 'Cinzel Decorative', 'Cinzel', serif;
+    --font-label: 'Cinzel', serif;
+    --font-body:  'EB Garamond', 'Segoe UI', serif;
+    --font-mono:  'Courier New', 'Consolas', monospace;
+    --ease-rpg:   cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 body {
-    background: var(--bg-page);
+    background-color: var(--bg-page);
+    background-image: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%);
+    background-attachment: fixed;
+    background-size: 100% 100%;
     color: var(--text);
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-body);
+    font-size: 1rem;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* scanline texture */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 0, 0, 0.03) 3px,
+        rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 9000;
+}
+
+/* ── Typography utilities ── */
+.rpg-title {
+    font-family: var(--font-title);
+    color: var(--accent-hi);
+    text-shadow: 0 0 20px var(--gold-glow);
+    letter-spacing: 0.04em;
+}
+
+.rpg-label {
+    font-family: var(--font-label);
+    color: var(--accent-hi);
+    letter-spacing: 0.05em;
+}
+
+.rpg-rune {
+    font-family: var(--font-label);
+    color: var(--accent);
+    letter-spacing: 0.45em;
+    opacity: 0.65;
+    font-size: 0.85rem;
+    text-align: center;
+    display: block;
+    margin-bottom: 0.45rem;
+}
+
+.rpg-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 0.75rem 0;
+    opacity: 0.35;
 }
 
 /* ── Panels ── */
@@ -40,18 +102,34 @@ body {
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 1rem 1.2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(160,120,48,0.07) 0%, transparent 65%);
+    pointer-events: none;
 }
 
 /* ── HP bars ── */
 .hp-bar  { height: 14px; border-radius: 6px; background: #1e1a10; overflow: hidden; }
 .hp-fill { height: 100%; border-radius: 6px; transition: width .4s ease; }
-.hp-text { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+.hp-text { font-size: 0.82rem; font-weight: 600; white-space: nowrap; font-family: var(--font-label); }
+
+.hp-fill.bg-success { box-shadow: 0 0 9px rgba(102,221,136,0.5); }
+.hp-fill.bg-warning { box-shadow: 0 0 9px rgba(255,170,68,0.45); }
+.hp-fill.bg-danger  { box-shadow: 0 0 9px rgba(230,64,64,0.45); }
 
 /* ── Ghost / accent buttons ── */
 .btn-ghost {
     background: transparent; border: 1px solid var(--border-2); color: var(--text-muted);
     border-radius: 6px; padding: 0.3rem 0.8rem; font-size: 0.82rem; text-decoration: none;
     transition: border-color .15s, color .15s; display: inline-block;
+    font-family: var(--font-label); letter-spacing: 0.04em;
 }
 .btn-ghost:hover { border-color: var(--accent); color: var(--accent-hi); }
 
@@ -59,14 +137,20 @@ body {
     background: var(--accent); border: 1px solid var(--accent-hi);
     color: #fff; font-weight: 600; border-radius: 8px;
     padding: .5rem 1.4rem; text-decoration: none; display: inline-block;
-    transition: background .15s; cursor: pointer;
+    transition: background .15s, box-shadow .2s; cursor: pointer;
+    font-family: var(--font-label); letter-spacing: 0.06em;
 }
-.btn-rpg:hover { background: var(--accent-hi); border-color: var(--accent-hi); color: #fff; }
+.btn-rpg:hover {
+    background: var(--accent-hi);
+    color: #fff;
+    box-shadow: 0 0 20px var(--gold-glow);
+}
 
 /* ── Form controls ── */
 .form-control {
     background: var(--bg-card); border: 1px solid var(--border-2);
     color: #e0d8c0; border-radius: 8px;
+    font-family: var(--font-body);
 }
 .form-control:focus {
     background: var(--bg-card); border-color: var(--accent);
@@ -78,6 +162,7 @@ body {
 .btag {
     font-size: 0.66rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;
     display: inline-block; margin-left: 4px; vertical-align: middle;
+    font-family: var(--font-label); letter-spacing: 0.04em;
 }
 .badge-crit { background:#3a1800; color:#ffaa44; border:1px solid #5a3000; }
 .badge-stun { background:#2a2a00; color:#ffdd55; border:1px solid #4a4a00; }
@@ -91,12 +176,13 @@ body {
     font-size:.72rem; color:#ffdd55; background:#2a2a00;
     border:1px solid #5a5a00; border-radius:4px;
     padding:1px 6px; display:inline-block; margin-top:3px;
+    font-family: var(--font-label);
 }
 
 /* ── Loader overlay ── */
 .loader-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(5,4,2,.85); z-index: 9999;
+    background: rgba(5,4,2,.88); z-index: 9999;
     flex-direction: column; align-items: center; justify-content: center;
 }
 .loader-spinner {
@@ -105,7 +191,10 @@ body {
     border-radius: 50%; animation: rpg-spin .65s linear infinite;
 }
 @keyframes rpg-spin { to { transform: rotate(360deg); } }
-.loader-label { color: var(--text-muted); margin-top:12px; font-size:.82rem; }
+.loader-label {
+    color: var(--text-muted); margin-top:12px; font-size:.82rem;
+    font-family: var(--font-label); letter-spacing: 0.08em;
+}
 
 /* ── Slot machine overlay ── */
 .slot-overlay {
@@ -116,11 +205,15 @@ body {
 }
 .slot-title {
     font-size: 1.1rem; font-weight: 700; color: var(--text-muted);
-    letter-spacing: .08em; text-transform: uppercase;
+    letter-spacing: .1em; text-transform: uppercase;
+    font-family: var(--font-label);
 }
 .slot-skill-name {
     font-size: 1.4rem; font-weight: 700; color: var(--text);
     margin-bottom: .25rem;
+    font-family: var(--font-label);
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 12px var(--gold-glow);
 }
 .slot-window {
     width: 220px; height: 240px;
@@ -151,6 +244,7 @@ body {
 .slot-block {
     height: 80px; display: flex; align-items: center; justify-content: center;
     font-size: .95rem; font-weight: 700; letter-spacing: .04em;
+    font-family: var(--font-label);
 }
 .slot-block.red   { background:#1a0404; color:#ff6666; }
 .slot-block.green { background:#041a04; color:#66dd88; }
@@ -162,7 +256,11 @@ body {
     flex-direction: column; align-items: center; justify-content: center;
     gap: 1.2rem;
 }
-.wheel-title { font-size:1.1rem; font-weight:700; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; }
+.wheel-title {
+    font-size:1.1rem; font-weight:700; color:var(--text-muted);
+    letter-spacing:.1em; text-transform:uppercase;
+    font-family: var(--font-label);
+}
 .wheel-wrap  { position: relative; }
 .wheel-canvas { border-radius: 50%; display: block; }
 .wheel-pointer {
@@ -176,6 +274,8 @@ body {
 .wheel-result {
     font-size: 1.5rem; font-weight: 700; opacity: 0;
     transition: opacity .4s;
+    font-family: var(--font-label);
+    letter-spacing: 0.06em;
 }
 
 /* ── Character portrait ── */
@@ -194,4 +294,34 @@ body {
     opacity: 1;
     transform: translateY(0);
     transition: opacity .3s ease, transform .3s ease;
+}
+
+/* ── Stat box ── */
+.stat-box {
+    background: var(--bg-deep);
+    border: 1px solid #2a2010;
+    border-radius: 8px;
+    padding: .8rem .5rem;
+    text-align: center;
+    transition: border-color .2s;
+}
+.stat-box:hover { border-color: var(--accent-lo); }
+.stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+.stat-label {
+    font-size: 0.68rem; color: var(--text-dim); margin-top: .28rem;
+    font-family: var(--font-label); letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+/* ── Class badge ── */
+.class-badge {
+    display: inline-block;
+    background: #1c1408;
+    border: 1px solid #7a5818;
+    border-radius: 20px;
+    padding: .25rem .8rem;
+    font-size: .85rem;
+    color: var(--accent-hi);
+    font-weight: 600;
+    font-family: var(--font-label);
+    letter-spacing: 0.05em;
 }

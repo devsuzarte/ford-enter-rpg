@@ -19,6 +19,7 @@ namespace FordEnterRPG.Models
 
         public string Status { get; set; } = "Active";
         public bool RewardClaimed { get; set; } = false;
+        public bool PlayerGoesFirst { get; set; } = true;
         public int TurnCount { get; set; } = 0;
         public int RunSequence { get; set; } = 0;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

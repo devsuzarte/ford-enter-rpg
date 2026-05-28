@@ -30,65 +30,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@Model.Name — FordEnterRPG</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
     <style>
-        body { background: #0d0b09; color: #ddd8c8; font-family: 'Segoe UI', sans-serif;
-               min-height: 100vh; display: flex; justify-content: center;
+        body { display: flex; justify-content: center;
                align-items: flex-start; padding: 1.5rem 1rem; }
 
-        h1 { color: #d4a84b; font-size: 1.5rem; margin: 0; }
-        h2 { color: #c89838; font-size: 1.1rem; margin-bottom: .8rem; text-transform: uppercase;
-             letter-spacing: .06em; font-weight: 600; }
-
-        .panel { background: #15120e; border: 1px solid #2e2820; border-radius: 10px; padding: 1rem 1.2rem; }
-
-        .stat-box {
-            background: #0d0b09;
-            border: 1px solid #2a2010;
-            border-radius: 8px;
-            padding: .8rem .5rem;
-            text-align: center;
-        }
-        .stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1; }
-        .stat-label { font-size: 0.72rem; color: #70654a; margin-top: .25rem; }
-
-        .class-badge {
-            display: inline-block;
-            background: #1c1408;
-            border: 1px solid #7a5818;
-            border-radius: 20px;
-            padding: .25rem .8rem;
-            font-size: .85rem;
-            color: #d4a84b;
-            font-weight: 600;
-        }
+        h1 { color: #c89838; font-size: 1.5rem; margin: 0; font-family: var(--font-title); letter-spacing: .04em; text-shadow: 0 0 16px rgba(201,162,39,.35); }
+        h2 { color: #c89838; font-size: .95rem; margin-bottom: .8rem; text-transform: uppercase;
+             letter-spacing: .1em; font-weight: 700; font-family: var(--font-label); }
 
         .skill-card {
             background: #0d0b09;
             border: 1px solid #2a2010;
             border-radius: 8px;
             padding: .8rem 1rem;
+            transition: border-color .2s;
         }
-        .skill-name  { font-size: .93rem; font-weight: 600; color: #ddd8c8; }
-        .skill-rarity{ font-size: .75rem; }
-        .skill-desc  { font-size: .78rem; color: #70654a; margin-top: .15rem; }
+        .skill-card:hover { border-color: var(--accent-lo); }
+        .skill-name  { font-size: .93rem; font-weight: 700; color: #ddd8c8; font-family: var(--font-label); letter-spacing: .03em; }
+        .skill-rarity{ font-size: .72rem; font-family: var(--font-label); }
+        .skill-desc  { font-size: .80rem; color: #70654a; margin-top: .15rem; }
         .skill-stats { font-size: .78rem; color: #9a9070; margin-top: .4rem; }
         .skill-stats strong { color: #ddd8c8; }
 
         .btn-play {
-            background: #8b0000; border-color: #8b0000;
+            background: #004c8b; border-color: #004c8b;
             color: #fff; font-size: 1rem; font-weight: 600;
             padding: .7rem 1.2rem; border-radius: 8px; width: 100%;
+            font-family: var(--font-label); letter-spacing: .06em;
+            transition: background .15s, box-shadow .2s;
         }
-        .btn-play:hover { background: #aa0000; border-color: #aa0000; color: #fff; }
+        .btn-play:hover { background: #aa0000; border-color: #cc2020; color: #fff; box-shadow: 0 0 18px rgba(180,0,0,.4); }
         .btn-continue {
             background: #a07830; border-color: #c89838;
             color: #fff; font-size: 1rem; font-weight: 600;
             padding: .7rem 1.2rem; border-radius: 8px; width: 100%;
+            font-family: var(--font-label); letter-spacing: .06em;
+            transition: background .15s, box-shadow .2s;
         }
-        .btn-continue:hover { background: #c89838; border-color: #c89838; color: #fff; }
+        .btn-continue:hover { background: #c89838; border-color: #c89838; color: #fff; box-shadow: 0 0 18px rgba(201,162,39,.35); }
         .btn-back {
             font-size: .82rem; color: #9a9070; text-decoration: none;
             border: 1px solid #2e2820; border-radius: 6px; padding: .3rem .7rem;
+            font-family: var(--font-label); letter-spacing: .04em;
         }
         .btn-back:hover { color: #d4a84b; border-color: #7a5818; }
 
@@ -210,15 +194,10 @@
     }
 
 </div>
-<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(5,4,2,.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;">
-    <div style="width:42px;height:42px;border:4px solid #2e2820;border-top-color:#a07830;border-radius:50%;animation:_sp .65s linear infinite;"></div>
-    <div style="color:#9a9070;margin-top:12px;font-size:.82rem;">Carregando...</div>
+<div id="loader" class="loader-overlay">
+    <div class="loader-spinner"></div>
+    <div class="loader-label">Carregando...</div>
 </div>
-<style>@@keyframes _sp{to{transform:rotate(360deg)}}</style>
-<script>
-(function(){var o=document.getElementById('loader');function s(){o.style.display='flex';}
-document.addEventListener('submit',s);
-document.addEventListener('click',function(e){var a=e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(!h||h[0]==='#'||/^(https?:|mailto:)/.test(h))return;s();});})();
-</script>
+<script src="/js/loader.js"></script>
 </body>
 </html>
