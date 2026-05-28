@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Política de Privacidade — FordEnterRPG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+        body {
+            min-height: 100vh;
+            background: #0d0b09;
+            color: #ccc8b8;
+            font-family: 'EB Garamond', serif;
+            font-size: 1.05rem;
+            line-height: 1.75;
+        }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.022) 3px,rgba(0,0,0,.022) 4px);
+            pointer-events: none; z-index: 9000;
+        }
+
+        /* ── Header ── */
+        .priv-header {
+            background: #09080600;
+            border-bottom: 1px solid #2a2218;
+            padding: 1.2rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky; top: 0;
+            backdrop-filter: blur(8px);
+            z-index: 100;
+        }
+        .priv-header-brand {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1rem; color: #c89838;
+            text-decoration: none; letter-spacing: .08em;
+            text-shadow: 0 0 10px rgba(200,152,56,.3);
+        }
+        .priv-header-brand:hover { color: #ffd700; }
+        .btn-back {
+            font-family: 'Cinzel', serif; font-size: .74rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: #7a6840; text-decoration: none;
+            border: 1px solid #2a2218; border-radius: 5px;
+            padding: .3rem .7rem;
+            transition: color .15s, border-color .15s;
+        }
+        .btn-back:hover { color: #c89838; border-color: #a07830; }
+
+        /* ── Content wrapper ── */
+        .priv-wrap {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+            animation: fadeIn .4s ease both;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Title block ── */
+        .priv-eyebrow {
+            font-family: 'Cinzel', serif; font-size: .72rem;
+            letter-spacing: .22em; text-transform: uppercase;
+            color: #a07830; margin-bottom: .6rem;
+        }
+        .priv-title {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            color: #c89838;
+            text-shadow: 0 0 20px rgba(200,152,56,.25);
+            line-height: 1.2;
+            margin-bottom: .5rem;
+        }
+        .priv-meta {
+            font-size: .88rem; color: #5a5030; font-style: italic;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #1e1a14;
+        }
+
+        /* ── Sections ── */
+        .priv-section { margin-bottom: 2.4rem; }
+
+        .priv-section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem; font-weight: 700;
+            color: #a07830; letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: .75rem;
+            padding-bottom: .4rem;
+            border-bottom: 1px solid #1e1a14;
+        }
+
+        .priv-section p { margin-bottom: .85rem; color: #bcb8a8; }
+        .priv-section p:last-child { margin-bottom: 0; }
+
+        .priv-section ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: .85rem;
+        }
+        .priv-section ul li {
+            color: #bcb8a8;
+            padding: .18rem 0 .18rem 1.4rem;
+            position: relative;
+        }
+        .priv-section ul li::before {
+            content: '✦';
+            position: absolute; left: 0;
+            color: #6a5020; font-size: .7rem;
+            top: .32rem;
+        }
+
+        .priv-highlight {
+            background: #15120e;
+            border: 1px solid #2a2218;
+            border-left: 3px solid #a07830;
+            border-radius: 0 6px 6px 0;
+            padding: .9rem 1.1rem;
+            margin: 1rem 0;
+            color: #ccc8b8;
+            font-size: .97rem;
+        }
+
+        /* ── Footer ── */
+        .priv-footer {
+            text-align: center;
+            padding-top: 2.5rem;
+            border-top: 1px solid #1e1a14;
+            font-size: .85rem; color: #4a4030;
+        }
+        .priv-footer a {
+            color: #9a7828; text-decoration: none;
+            font-family: 'Cinzel', serif; font-size: .78rem;
+            letter-spacing: .05em; transition: color .15s;
+        }
+        .priv-footer a:hover { color: #c89838; }
+
+        @media (max-width: 600px) {
+            .priv-wrap { padding: 2rem 1.2rem 4rem; }
+            .priv-header { padding: 1rem 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="priv-header">
+    <a href="/" class="priv-header-brand">⚔ FordEnterRPG</a>
+    <a href="/SignUp" class="btn-back">← Voltar ao Cadastro</a>
+</header>
+
+<div class="priv-wrap">
+
+    <p class="priv-eyebrow">Conformidade com a LGPD — Lei nº 13.709/2018</p>
+    <h1 class="priv-title">Política de Privacidade</h1>
+    <p class="priv-meta">Última atualização: maio de 2025 &nbsp;·&nbsp; FordEnterRPG</p>
+
+    <!-- 1 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">1. Quem somos</h2>
+        <p>
+            O <strong>FordEnterRPG</strong> é um jogo de RPG medieval baseado em navegador,
+            desenvolvido de forma independente. Esta Política descreve como coletamos, usamos
+            e protegemos seus dados pessoais de acordo com a
+            <strong>Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018)</strong>.
+        </p>
+        <p>
+            Ao criar uma conta e utilizar o jogo, você concorda com os termos desta Política.
+            Em caso de dúvidas, entre em contato pelo e-mail indicado na seção 9.
+        </p>
+    </section>
+
+    <!-- 2 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">2. Dados que coletamos</h2>
+        <p>Coletamos apenas os dados estritamente necessários para o funcionamento do jogo:</p>
+        <ul>
+            <li><strong>Nome de aventureiro</strong> — identificação dentro do jogo</li>
+            <li><strong>Endereço de e-mail</strong> — login e comunicações essenciais</li>
+            <li><strong>Senha</strong> — armazenada com hash criptográfico, nunca em texto simples</li>
+            <li><strong>Dados de jogo</strong> — personagem, batalhas, habilidades, nível e histórico de partidas</li>
+        </ul>
+        <p>
+            Não coletamos documentos de identidade, dados financeiros, localização,
+            dados sensíveis ou qualquer informação além das listadas acima.
+        </p>
+    </section>
+
+    <!-- 3 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">3. Finalidade do tratamento</h2>
+        <p>Seus dados são utilizados exclusivamente para:</p>
+        <ul>
+            <li>Criar e gerenciar sua conta de jogador</li>
+            <li>Autenticar seu acesso ao sistema</li>
+            <li>Salvar e recuperar o progresso do personagem e batalhas</li>
+            <li>Exibir estatísticas de perfil dentro do jogo</li>
+            <li>Garantir a segurança e integridade da plataforma</li>
+        </ul>
+        <div class="priv-highlight">
+            Não utilizamos seus dados para publicidade, marketing ou venda a terceiros.
+        </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">4. Base legal (LGPD, Art. 7º)</h2>
+        <p>O tratamento de seus dados é fundamentado em:</p>
+        <ul>
+            <li>
+                <strong>Consentimento (inciso I)</strong> — coletado no momento do cadastro,
+                por meio da marcação do campo "Li e aceito a Política de Privacidade"
+            </li>
+            <li>
+                <strong>Execução de contrato (inciso V)</strong> — necessário para fornecer
+                os serviços de jogo solicitados pelo titular
+            </li>
+            <li>
+                <strong>Legítimo interesse (inciso IX)</strong> — para segurança, prevenção de
+                fraudes e manutenção da integridade da plataforma
+            </li>
+        </ul>
+    </section>
+
+    <!-- 5 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">5. Compartilhamento de dados</h2>
+        <p>
+            Seus dados pessoais <strong>não são vendidos, alugados ou compartilhados</strong>
+            com terceiros para fins comerciais.
+        </p>
+        <p>Utilizamos os seguintes serviços externos para o funcionamento da plataforma:</p>
+        <ul>
+            <li>
+                <strong>Google Fonts</strong> — carregamento de fontes tipográficas;
+                pode registrar o endereço IP do usuário conforme a
+                <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="color:#9a7828;">Política do Google</a>
+            </li>
+            <li>
+                <strong>jsDelivr CDN</strong> — carregamento de bibliotecas JavaScript (Three.js, Bootstrap);
+                não processa dados pessoais identificáveis
+            </li>
+        </ul>
+        <p>
+            Em caso de obrigação legal, podemos divulgar dados às autoridades competentes,
+            conforme exigido pela legislação brasileira.
+        </p>
+    </section>
+
+    <!-- 6 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">6. Armazenamento local (cookies e localStorage)</h2>
+        <p>
+            O jogo utiliza <strong>cookies de sessão</strong> exclusivamente para manter
+            você autenticado enquanto navega. Esses cookies são apagados ao encerrar
+            a sessão ou clicar em "Sair".
+        </p>
+        <p>
+            Também utilizamos o <strong>localStorage</strong> do navegador para salvar
+            preferências de interface, como o estado de animações já exibidas.
+            Nenhum dado pessoal é armazenado localmente.
+        </p>
+    </section>
+
+    <!-- 7 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">7. Retenção e exclusão de dados</h2>
+        <p>
+            Seus dados são mantidos enquanto sua conta estiver ativa.
+            Você pode solicitar a exclusão completa da conta e de todos os dados
+            associados a qualquer momento pelo e-mail de contato indicado na seção 9.
+        </p>
+        <p>
+            Após a solicitação de exclusão, os dados serão removidos em até
+            <strong>30 dias</strong>, salvo obrigação legal de retenção.
+        </p>
+    </section>
+
+    <!-- 8 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">8. Seus direitos como titular (LGPD, Art. 18)</h2>
+        <p>A LGPD garante a você os seguintes direitos, exercíveis mediante solicitação:</p>
+        <ul>
+            <li><strong>Acesso</strong> — confirmar a existência de tratamento e obter cópia dos dados</li>
+            <li><strong>Correção</strong> — corrigir dados incompletos, inexatos ou desatualizados</li>
+            <li><strong>Anonimização, bloqueio ou eliminação</strong> — de dados desnecessários ou tratados em desconformidade</li>
+            <li><strong>Portabilidade</strong> — receber seus dados em formato estruturado</li>
+            <li><strong>Eliminação</strong> — excluir dados tratados com base em consentimento</li>
+            <li><strong>Revogação do consentimento</strong> — retirar o consentimento a qualquer momento</li>
+            <li><strong>Oposição</strong> — opor-se ao tratamento em desconformidade com a LGPD</li>
+            <li><strong>Informação sobre compartilhamento</strong> — saber com quais entidades seus dados são compartilhados</li>
+        </ul>
+        <p>
+            Para exercer qualquer um desses direitos, entre em contato pelo e-mail
+            da seção 9. Responderemos no prazo máximo de 15 dias úteis.
+        </p>
+    </section>
+
+    <!-- 9 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">9. Contato e encarregado de dados (DPO)</h2>
+        <p>
+            Para dúvidas, solicitações relacionadas à LGPD ou exercício de direitos,
+            entre em contato:
+        </p>
+        <div class="priv-highlight">
+            <strong>E-mail:</strong> devsuzarte@gmail.com<br />
+            <strong>Responsável:</strong> Equipe FordEnterRPG<br />
+            <strong>Prazo de resposta:</strong> até 15 dias úteis
+        </div>
+        <p>
+            Você também pode registrar reclamações perante a
+            <strong>Autoridade Nacional de Proteção de Dados (ANPD)</strong>
+            pelo portal <a href="https://www.gov.br/anpd" target="_blank" rel="noopener" style="color:#9a7828;">gov.br/anpd</a>.
+        </p>
+    </section>
+
+    <!-- 10 -->
+    <section class="priv-section">
+        <h2 class="priv-section-title">10. Alterações nesta Política</h2>
+        <p>
+            Esta Política pode ser atualizada periodicamente. Alterações relevantes
+            serão comunicadas na tela de login ou por e-mail. A data da última
+            atualização é sempre indicada no topo deste documento.
+        </p>
+        <p>
+            O uso continuado do jogo após a publicação de alterações constitui
+            aceitação da nova versão da Política.
+        </p>
+    </section>
+
+    <footer class="priv-footer">
+        <p>© 2025 FordEnterRPG &nbsp;·&nbsp; Todos os direitos reservados</p>
+        <p style="margin-top:.5rem;">
+            <a href="/SignUp">Criar conta</a>
+            &nbsp;·&nbsp;
+            <a href="/SignIn">Entrar</a>
+        </p>
+    </footer>
+
+</div>
+
+</body>
+</html>

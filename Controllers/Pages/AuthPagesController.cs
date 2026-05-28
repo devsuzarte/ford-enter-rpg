@@ -84,6 +84,9 @@ namespace FordEnterRPG.Controllers.Pages
         [HttpPost("/SignUp")]
         public async Task<IActionResult> SignUp([FromForm] DTOs.UserSignUpDto dto)
         {
+            if (!dto.AcceptTerms)
+                ModelState.AddModelError("AcceptTerms", "Você deve aceitar a Política de Privacidade para criar uma conta.");
+
             if (!ModelState.IsValid)
                 return View("~/Views/SignUp.cshtml");
 
@@ -95,5 +98,11 @@ namespace FordEnterRPG.Controllers.Pages
             }
             return Redirect("/SignIn");
         }
+    }
+
+    public class PublicPagesController : Controller
+    {
+        [HttpGet("/privacidade")]
+        public IActionResult Privacidade() => View("~/Views/Privacidade.cshtml");
     }
 }
