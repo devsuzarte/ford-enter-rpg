@@ -138,7 +138,9 @@
     /* data passed to JS */
     int    esSlotTurn  = ViewBag.EnemySlotTurn  != null ? (int)ViewBag.EnemySlotTurn  : 0;
     bool   esSlotHit   = ViewBag.EnemySlotHit   != null ? (bool)ViewBag.EnemySlotHit  : false;
-    string esSlotSkill = ViewBag.EnemySlotSkill != null ? ((string)ViewBag.EnemySlotSkill).Replace("'", "\\'") : "";
+    string esSlotSkill = ViewBag.EnemySlotSkill as string ?? "";
+    string psSlotHitJs = ViewBag.PlayerSlotHit  != null ? ((bool)ViewBag.PlayerSlotHit ? "true" : "false") : "null";
+    string psSlotSkill = ViewBag.PlayerSlotSkill as string ?? "";
 }
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -151,7 +153,7 @@
     <style>
         body { display:flex; justify-content:center; align-items:flex-start; padding:1.5rem 1rem; }
 
-        .combatant-name { font-size:1.05rem; font-weight:700; color:#ddd8c8; }
+        .combatant-name { font-size:1.05rem; font-weight:700; color:#ddd8c8; font-family:var(--font-label); letter-spacing:.04em; }
         .combatant-sub  { font-size:0.80rem; color:#9a9070; }
 
         /* ── Carousel ── */
@@ -163,7 +165,7 @@
                    cursor:pointer; line-height:1.4; transition:border-color .15s,color .15s; }
         .nav-btn:hover:not(:disabled) { border-color:#a07830; color:#d4a84b; }
         .nav-btn:disabled { opacity:.3; cursor:not-allowed; }
-        .turn-indicator { font-size:.76rem; color:#70654a; letter-spacing:.04em; }
+        .turn-indicator { font-size:.76rem; color:#70654a; letter-spacing:.06em; font-family:var(--font-label); }
 
         .turn-slide { display:none; }
         .turn-body  { padding:.7rem .8rem; display:flex; flex-direction:column; gap:.45rem; min-height:90px; }
@@ -205,10 +207,10 @@
         }
         .skill-btn:hover:not(:disabled) { border-color:#a07830; background:#1e1a10; color:#fff; }
         .skill-btn:disabled { opacity:.4; cursor:not-allowed; }
-        .skill-name  { font-weight:600; font-size:.93rem; }
+        .skill-name  { font-weight:700; font-size:.93rem; font-family:var(--font-label); letter-spacing:.03em; }
         .skill-stats { font-size:.78rem; color:#9a9070; margin-top:2px; }
-        .skills-label { font-size:.76rem; color:#70654a; text-transform:uppercase;
-                        letter-spacing:.08em; margin-bottom:8px; }
+        .skills-label { font-size:.72rem; color:#70654a; text-transform:uppercase;
+                        letter-spacing:.12em; margin-bottom:8px; font-family:var(--font-label); }
 
         /* ── End banners ── */
         .banner-win  { background:#0f2d1a; border:1px solid #2a6a3a; border-radius:10px; padding:1.2rem; text-align:center; }
@@ -229,22 +231,22 @@
             flex-direction:column; align-items:center; justify-content:center;
             gap:1rem;
         }
-        .dice-title    { font-size:1.2rem; font-weight:700; color:#d4a84b; letter-spacing:.06em; text-transform:uppercase; }
-        .dice-subtitle { font-size:.82rem; color:#9a9070; }
-        .dice-canvas-wrap { width:280px; height:280px; }
-        .dice-vs-row   { display:none; align-items:center; gap:1.4rem; font-size:2rem; font-weight:700; }
+        .dice-title    { font-size:1.2rem; font-weight:700; color:#d4a84b; letter-spacing:.1em; text-transform:uppercase; font-family:var(--font-label); text-shadow:0 0 16px rgba(201,162,39,.4); }
+        .dice-subtitle { font-size:.82rem; color:#9a9070; font-family:var(--font-label); letter-spacing:.04em; }
+        .dice-canvas-wrap { width:min(520px,92vw); height:auto; }
+        .dice-vs-row   { display:none; align-items:center; gap:1.4rem; font-size:2rem; font-weight:700; font-family:var(--font-label); }
         .dice-score    { min-width:2rem; text-align:center; }
-        .dice-vs-label { color:#70654a; font-size:1rem; }
-        .dice-result-msg { font-size:1.1rem; font-weight:700; display:none; }
+        .dice-vs-label { color:#70654a; font-size:1rem; font-family:var(--font-label); }
+        .dice-result-msg { font-size:1.1rem; font-weight:700; display:none; font-family:var(--font-label); letter-spacing:.06em; }
     </style>
 </head>
 <body>
-<div style="width:100%;max-width:680px;margin:0 auto;">
+<div id="battle-layout" style="width:100%;max-width:680px;margin:0 auto;">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <span style="font-size:1.1rem;font-weight:700;color:#d4a84b;">Batalha #@battle.RunSequence</span>
-            <span style="font-size:0.82rem;color:#70654a;margin-left:8px;">Turno @battle.TurnCount</span>
+            <span class="rpg-label" style="font-size:1.1rem;font-weight:700;">Batalha #@battle.RunSequence</span>
+            <span style="font-size:0.82rem;color:#70654a;margin-left:8px;font-family:var(--font-label);letter-spacing:.04em;">Turno @battle.TurnCount</span>
         </div>
         <a href="/Character" class="btn-ghost">Personagem</a>
     </div>
@@ -294,7 +296,7 @@
                                     <div class="ev-row @(ev.IsPlayer ? "is-player" : "is-enemy")">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="ev-actor @(ev.IsPlayer ? "player" : "enemy")">
-                                                @(ev.IsPlayer ? "&#9876;" : "&#9760;") @ev.Actor
+                                                @Html.Raw(ev.IsPlayer ? "&#9876;" : "&#9760;") @ev.Actor
                                             </span>
                                             @if (ev.Advantage == "vantagem")
                                             {
@@ -322,7 +324,7 @@
                                 {
                                     <div class="ev-row is-miss @(ev.IsPlayer ? "is-player" : "is-enemy")" style="border-left-color:#555544;">
                                         <div class="ev-actor @(ev.IsPlayer ? "player" : "enemy")">
-                                            @(ev.IsPlayer ? "&#9876;" : "&#9760;") @ev.Actor &mdash; <span class="ev-skill">@ev.Skill</span>
+                                            @Html.Raw(ev.IsPlayer ? "&#9876;" : "&#9760;") @ev.Actor &mdash; <span class="ev-skill">@ev.Skill</span>
                                         </div>
                                         <span class="ev-msg-miss">&#10006; @ev.Message</span>
                                     </div>
@@ -418,6 +420,7 @@
                     <form method="post" action="/Battle/@battle.Id/Turn" class="skill-form" data-no-loader data-miss-chance="@MissChancePct(s)">
                         <input type="hidden" name="skillId" value="@s.Id" />
                         <input type="hidden" name="isHit" value="" />
+                        <input type="hidden" name="playerGoesFirst" value="true" />
                         <button type="submit" class="skill-btn">
                             <div class="d-flex justify-content-between align-items-baseline">
                                 <span class="skill-name">@s.Name</span>
@@ -456,6 +459,7 @@
         <div id="slot-strip" class="slot-strip"></div>
     </div>
     <div id="slot-result" style="font-size:1.1rem;font-weight:700;min-height:1.5rem;opacity:0;transition:opacity .3s;letter-spacing:.04em;"></div>
+    <button id="slot-continue-btn" class="btn-rpg" style="display:none;margin-top:1.2rem;">Continuar &rsaquo;</button>
 </div>
 
 <!-- Enemy slot machine overlay -->
@@ -467,6 +471,7 @@
         <div id="enemy-slot-strip" class="slot-strip"></div>
     </div>
     <div id="enemy-slot-result" style="font-size:1.1rem;font-weight:700;min-height:1.5rem;opacity:0;transition:opacity .3s;letter-spacing:.04em;"></div>
+    <button id="enemy-slot-continue-btn" class="btn-rpg" style="display:none;margin-top:1.2rem;">Continuar &rsaquo;</button>
 </div>
 
 <!-- Dice initiative overlay -->
@@ -498,13 +503,16 @@
 
 <!-- battle state for JS -->
 <script>
-var battleTurnCount = @battle.TurnCount;
-var battleId        = @battle.Id;
-var battleStatus    = '@battle.Status';
-var enemyName       = '@battle.EnemyName.Replace("'", "\\'")';
-var enemySlotTurn   = @esSlotTurn;
-var enemySlotHit    = @(esSlotHit ? "true" : "false");
-var enemySlotSkill  = '@esSlotSkill';
+var battleTurnCount       = @battle.TurnCount;
+var battleId              = @battle.Id;
+var battleStatus          = @Html.Raw(Json.Serialize(battle.Status));
+var enemyName             = @Html.Raw(Json.Serialize(battle.EnemyName));
+var battlePlayerGoesFirst = @(battle.PlayerGoesFirst ? "true" : "false");
+var enemySlotTurn         = @esSlotTurn;
+var enemySlotHit          = @(esSlotHit ? "true" : "false");
+var enemySlotSkill        = @Html.Raw(Json.Serialize(esSlotSkill));
+var playerSlotHit         = @psSlotHitJs;
+var playerSlotSkill       = @Html.Raw(Json.Serialize(psSlotSkill));
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>

@@ -72,19 +72,57 @@
                 slotResult.style.opacity = '1';
             }
 
-            setTimeout(function () {
-                slotOverlay.style.display = 'none';
-                centerBlock.style.boxShadow = '';
-                var loader = document.getElementById('loader');
-                if (loader) loader.style.display = 'flex';
-                if (pendingForm) { pendingForm.submit(); pendingForm = null; }
-            }, 900);
+            var continueBtn = document.getElementById('slot-continue-btn');
+            if (continueBtn) {
+                continueBtn.style.display = 'inline-block';
+                continueBtn.onclick = function () {
+                    continueBtn.style.display = 'none';
+                    slotOverlay.style.display = 'none';
+                    centerBlock.style.boxShadow = '';
+                    var loader = document.getElementById('loader');
+                    if (loader) loader.style.display = 'flex';
+                    if (pendingForm) { pendingForm.submit(); pendingForm = null; }
+                };
+            } else {
+                setTimeout(function () {
+                    slotOverlay.style.display = 'none';
+                    centerBlock.style.boxShadow = '';
+                    var loader = document.getElementById('loader');
+                    if (loader) loader.style.display = 'flex';
+                    if (pendingForm) { pendingForm.submit(); pendingForm = null; }
+                }, 900);
+            }
         }, settleDur);
     }
 
     document.querySelectorAll('.skill-form').forEach(function (form) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
+
+            /* Determine if the player acts first this turn */
+            var goesFirst;
+            if (typeof battleTurnCount !== 'undefined' && battleTurnCount === 0) {
+                /* First turn: use the dice overlay result stored in the hidden input */
+                var pgfInput = form.querySelector('input[name="playerGoesFirst"]');
+                goesFirst = pgfInput ? pgfInput.value !== 'false' : true;
+            } else {
+                /* Subsequent turns: use the stored battle value from the server */
+                goesFirst = typeof battlePlayerGoesFirst !== 'undefined' ? battlePlayerGoesFirst : true;
+            }
+
+            if (!goesFirst) {
+                /* Enemy goes first — determine hit silently and submit without animation.
+                   The player slot will replay server-side after the enemy slot on reload. */
+                var missChance = parseFloat(form.dataset.missChance || '0') / 100;
+                var isHit = Math.random() >= missChance;
+                var isHitInput = form.querySelector('input[name="isHit"]');
+                if (isHitInput) isHitInput.value = isHit ? 'true' : 'false';
+                var loader = document.getElementById('loader');
+                if (loader) loader.style.display = 'flex';
+                form.submit();
+                return;
+            }
+
             var skillName = form.querySelector('.skill-name');
             runSlot(form, skillName ? skillName.textContent.trim() : '');
         });
@@ -100,10 +138,11 @@
     if (!wheelOverlay || !canvas) return;
 
     /* Weights: Epic 4x, Rare 2x, Common 1x */
+    /* Weights: Common 4x, Rare 2x, Epic 1x (epic is rarest) */
     var SEGMENTS = [
-        { label: 'Epico',  rarity: 'Epic',   color: '#3a2a00', rim: '#ffd700', weight: 4, textColor: '#ffd700' },
+        { label: 'Epico',  rarity: 'Epic',   color: '#3a2a00', rim: '#ffd700', weight: 1, textColor: '#ffd700' },
         { label: 'Raro',   rarity: 'Rare',   color: '#0d3a5c', rim: '#56b4e9', weight: 2, textColor: '#56b4e9' },
-        { label: 'Comum',  rarity: 'Common', color: '#252535', rim: '#888899', weight: 1, textColor: '#aaaacc' }
+        { label: 'Comum',  rarity: 'Common', color: '#252520', rim: '#888877', weight: 4, textColor: '#bbbb99' }
     ];
     var TOTAL_W = SEGMENTS.reduce(function (s, x) { return s + x.weight; }, 0);
 

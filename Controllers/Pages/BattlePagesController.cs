@@ -55,10 +55,11 @@ namespace FordEnterRPG.Controllers.Pages
             ViewBag.Character = full;
             ViewBag.Battle = battle;
 
-            /* pass enemy attack result from the latest log so JS can animate it */
+            /* pass attack results from the latest log so JS can animate them */
             if (battle.TurnCount > 0 && battle.Logs.Any() && battle.Status == "Active")
             {
                 var lastLog = battle.Logs.OrderByDescending(l => l.Turn).First();
+
                 var enemy = ParseEnemyAttack(lastLog.Description, full!.Name);
                 if (enemy.HasValue)
                 {
@@ -66,13 +67,24 @@ namespace FordEnterRPG.Controllers.Pages
                     ViewBag.EnemySlotHit   = enemy.Value.hit;
                     ViewBag.EnemySlotSkill = enemy.Value.skill;
                 }
+
+                /* when enemy goes first the player slot must replay on page reload too */
+                if (!battle.PlayerGoesFirst)
+                {
+                    var player = ParsePlayerAttack(lastLog.Description, full!.Name);
+                    if (player.HasValue)
+                    {
+                        ViewBag.PlayerSlotHit   = player.Value.hit;
+                        ViewBag.PlayerSlotSkill = player.Value.skill;
+                    }
+                }
             }
 
             return View("~/Views/Battle.cshtml");
         }
 
         [HttpPost("/Battle/{id:int}/Turn")]
-        public async Task<IActionResult> Turn(int id, [FromForm] int skillId, [FromForm] string? isHit)
+        public async Task<IActionResult> Turn(int id, [FromForm] int skillId, [FromForm] string? isHit, [FromForm] string? playerGoesFirst)
         {
             var userId = GetUserId();
             if (userId == 0) return Redirect("/SignIn");
@@ -90,7 +102,8 @@ namespace FordEnterRPG.Controllers.Pages
             if (skill == null) return Redirect($"/Battle/{id}");
 
             bool? clientIsHit = isHit != null ? isHit == "true" : null;
-            await _battleService.ExecuteTurnAsync(battle, character, skill, clientIsHit);
+            bool? pgf = playerGoesFirst != null ? playerGoesFirst == "true" : null;
+            await _battleService.ExecuteTurnAsync(battle, character, skill, clientIsHit, pgf);
             return Redirect($"/Battle/{id}");
         }
 
@@ -182,12 +195,7 @@ namespace FordEnterRPG.Controllers.Pages
                         var si = ln.IndexOf("usa '") + 5;
                         var ei = ln.IndexOf("'", si);
                         if (ei > si) skill = ln[si..ei];
-                        hit = null; /* reset for this actor */
-                    }
-                    else
-                    {
-                        skill = null; /* reset if we see player's attack next */
-                        hit   = null;
+                        hit = null;
                     }
                 }
                 else if (skill != null && hit == null)
@@ -199,6 +207,39 @@ namespace FordEnterRPG.Controllers.Pages
 
             if (skill != null && hit.HasValue)
                 return (hit.Value, skill);
+            return null;
+        }
+
+        private static (bool hit, string skill)? ParsePlayerAttack(string desc, string playerName)
+        {
+            bool nextIsResult = false;
+            string playerSkill = "";
+
+            foreach (var raw in desc.Split('\n'))
+            {
+                var ln = raw.Trim();
+                if (string.IsNullOrEmpty(ln) || ln.StartsWith("===")) continue;
+
+                if (nextIsResult)
+                {
+                    if (ln.Contains("[ERROU]"))       return (false, playerSkill);
+                    if (ln.StartsWith("Dano causado:")) return (true,  playerSkill);
+                    nextIsResult = false;
+                }
+
+                if (ln.StartsWith("ATAQUE: ") && ln.Contains(" usa '"))
+                {
+                    var actorEnd = ln.IndexOf(" usa '");
+                    var actor    = ln[8..actorEnd];
+                    if (actor == playerName)
+                    {
+                        var si = ln.IndexOf("usa '") + 5;
+                        var ei = ln.IndexOf("'", si);
+                        if (ei > si) { playerSkill = ln[si..ei]; nextIsResult = true; }
+                    }
+                }
+            }
+
             return null;
         }
 
