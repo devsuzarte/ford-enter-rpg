@@ -51,6 +51,14 @@
         buildStrip(missChance, isHit);
         slotOverlay.style.display = 'flex';
 
+        /* Mark that we've played the post-reload slot animations for this turn
+           so the server-side replay doesn't run again after reload. */
+        try {
+            if (typeof battleId !== 'undefined' && typeof battleTurnCount !== 'undefined') {
+                localStorage.setItem('es_' + battleId + '_' + battleTurnCount, '1');
+            }
+        } catch (e) { /* ignore storage errors */ }
+
         var finalY = (COUNT - 2 - 1) * BLOCK_H;
 
         requestAnimationFrame(function () {
@@ -115,15 +123,14 @@
             }
 
             if (!goesFirst) {
-                /* Enemy goes first — determine hit silently and submit without animation.
-                   The player slot will replay server-side after the enemy slot on reload. */
+                /* Enemy goes first — still show the player's slot animation before submitting
+                   so the player sees their animation even when outcome is known. */
                 var missChance = parseFloat(form.dataset.missChance || '0') / 100;
                 var isHit = Math.random() >= missChance;
                 var isHitInput = form.querySelector('input[name="isHit"]');
                 if (isHitInput) isHitInput.value = isHit ? 'true' : 'false';
-                var loader = document.getElementById('loader');
-                if (loader) loader.style.display = 'flex';
-                form.submit();
+                var skillName = form.querySelector('.skill-name');
+                runSlot(form, skillName ? skillName.textContent.trim() : '');
                 return;
             }
 

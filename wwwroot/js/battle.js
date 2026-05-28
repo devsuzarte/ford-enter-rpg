@@ -55,7 +55,6 @@
     var _playerNeeded = typeof playerSlotHit !== 'undefined' && playerSlotHit !== null
                      && typeof playerSlotSkill !== 'undefined' && playerSlotSkill !== '';
     var _willAnimate  = (_enemyNeeded || _playerNeeded)
-        && !(typeof battleStatus !== 'undefined' && battleStatus !== 'Active')
         && !localStorage.getItem(_storageKey);
 
     if (_willAnimate) {
@@ -83,7 +82,6 @@
                     && typeof playerSlotSkill !== 'undefined' && playerSlotSkill !== '';
 
     if (!enemyNeeded && !playerNeeded) return;
-    if (typeof battleStatus !== 'undefined' && battleStatus !== 'Active') return;
 
     var storageKey = 'es_' + (typeof battleId !== 'undefined' ? battleId : 0)
                    + '_' + (typeof battleTurnCount !== 'undefined' ? battleTurnCount : 0);

@@ -451,7 +451,15 @@
 </div>
 
 <!-- Player slot machine overlay -->
-<div id="slot-overlay" class="slot-overlay">
+<div id="slot-overlay" class="slot-overlay" style="background:rgba(4,20,4,.95);">
+    <style>
+        /* Player slot green accents */
+        #slot-overlay .slot-title { color: #66dd88; }
+        #slot-overlay .slot-skill-name { color: #dfffe8; text-shadow: 0 0 12px rgba(102,221,136,.35); }
+        #slot-overlay .slot-window { border-color: rgba(102,221,136,.12); }
+        #slot-overlay .slot-indicator { border-top-color: rgba(102,221,136,.08); border-bottom-color: rgba(102,221,136,.08); }
+        #slot-overlay .slot-block.green { background: #042004; color: #aaffc8; }
+    </style>
     <div class="slot-title">Executando habilidade</div>
     <div id="slot-skill-name" class="slot-skill-name"></div>
     <div class="slot-window">
